@@ -109,15 +109,17 @@ void Paths::InitVelocity( field<rowvec>& V , double T )
   
     netE = 0.0;
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      newP.randu();
-      newP -= 0.5;
+      for (unsigned int iD = 0; iD < nD; iD += 1) {
+        newP(iD) = unifRand() - 0.5;
+      }
       netP += newP;
-      netE += norm(newP,2);
+      netE += dot(newP,newP);
       V(iPart,iBead) = newP;
     }
 
     avgP = netP/(1.0*nPart);
-    vScale = sqrt(nD*nPart*nBead*T/(m*netE));
+    if (nPart < 2) avgP.zeros();
+    vScale = sqrt(nD*nPart*T/(m*netE*nBead));
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
       V(iPart,iBead) = (V(iPart,iBead) - avgP)*vScale;
     }
@@ -164,7 +166,7 @@ double Paths::getPE()
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       dR = Displacement( R(iPart,iBead) , R(iPart,bL[iBead+1]) );
-      total += mnBeadOver2Beta2hbar2 * norm(dR,2) - oneOvernBead * getV(iPart, iBead);
+      total += mnBeadOver2Beta2hbar2 * dot(dR,dR) - oneOvernBead * getV(iPart, iBead);
     }
   }
   
@@ -186,7 +188,7 @@ double Paths::getVE()
     
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       dR = Displacement( R(iPart,iBead) , rc );
-      total += 0.5 * norm(dR,2) * getdV(iPart, iBead) + getV(iPart, iBead);
+      total += 0.5 * dot(dR,dR) * getdV(iPart, iBead) + getV(iPart, iBead);
     }
   }
   
@@ -202,7 +204,7 @@ double Paths::getVE()
 // V = (1/2) m w^2 r^2
 double Paths::getV( const int iPart, const int iBead )
 {
-  return 0.5 * mOmega2 * norm( R(iPart,iBead) , 2 );
+  return 0.5 * mOmega2 * dot( R(iPart,iBead) , R(iPart,iBead) );
 }
 
 // Get Derivative of Potential for iPart, iBead
@@ -210,7 +212,15 @@ double Paths::getV( const int iPart, const int iBead )
 // dV/dr = m w^2 r
 double Paths::getdV( const int iPart, const int iBead )
 {
-  return mOmega2 * norm( R(iPart,iBead) , 1 );
+  return mOmega2 * norm( R(iPart,iBead) , 2 );
+}
+
+// Get Derivative of Potential for iPart, iBead
+// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
+// dV/dr = m w^2 r
+rowvec Paths::getgradV( const int iPart, const int iBead )
+{
+  return mOmega2 * R(iPart,iBead);
 }
 
 //////////////////////////////////
@@ -256,7 +266,7 @@ void Paths::UpdateF( field<rowvec>& F , field<rowvec>& R )
     dR2 = R(iPart,nBead-1) - R(iPart,0);
     PutInBox(dR1);
     PutInBox(dR2);
-    F(iPart,0) = -M(0)*wp*wp*(dR1 + dR2) - oneOvernBead*getdV(iPart,0);
+    F(iPart,0) = -M(0)*wp*wp*(dR1 + dR2) - oneOvernBead*getgradV(iPart,0);
     
     // Do the rest of the time slices
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
@@ -264,7 +274,7 @@ void Paths::UpdateF( field<rowvec>& F , field<rowvec>& R )
       dR2 = R(iPart,iBead-1) - R(iPart,iBead);
       PutInBox(dR1);
       PutInBox(dR2);
-      F(iPart,iBead) = -M(iBead)*wp*wp*(dR1 + dR2) - oneOvernBead*getdV(iPart,iBead);
+      F(iPart,iBead) = -M(iBead)*wp*wp*(dR1 + dR2) - oneOvernBead*getgradV(iPart,iBead);
     }
     
   }

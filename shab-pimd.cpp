@@ -1,4 +1,4 @@
-#include "shab-pimd.h" // Import headers, set global constants, and build system
+#include "shab-pimd.h"
 
 using namespace std;
 
@@ -12,6 +12,7 @@ int main (int argc, char* argv[])
   double dt = atof(argv[5]); // Time step of simulation
   double L = atof(argv[6]); // Simulation box size
 
+  cout << "\nSimulation Settings:";
   cout << "\nN: " << nPart << "\nD: " << nD << "\nM: " << nBead << "\nBeta: " << beta << "\nTime Step (s): " << dt << "\nBox Size: " << L << "\n";
 
   // Random Seed
@@ -33,39 +34,28 @@ int main (int argc, char* argv[])
   // Intialise paths
   Paths path(nPart,nD,nBead,beta,dt,L);   
   
-  // Equilibration
-  int eSteps = 0;
-  int perSkip = eSteps/10;
-  cout << "Equilibrating...\n";
-  for(unsigned int t = 0; t < eSteps; t++) {
-  
-    // Verlet Step
-    path.takeStep();
-
-    // Percentage Complete    
-    if((t%perSkip)==0) cout << 100.0*t/eSteps << "%\n";
-  }
-  
   // Initialize observables;
   double PE, VE;
+  scalarTrace << "t PE VE\n";
   
-  // Start Recording Data
-  int rSteps = 100;
-  perSkip = rSteps/10;
-  cout << "Recording Data...\n";
-  for(unsigned int t = 0; t < rSteps; t++) {
+  // Main Simulation Loop
+  int eSteps = 0;
+  int rSteps = 100000;
+  int totSteps = eSteps + rSteps;
+  int perSkip = totSteps/10;
+  cout << "\nRunning Simulation:\n";
+  for(unsigned int t = 0; t < totSteps; t++) {
     
     // Verlet Step
     path.takeStep();
   
-    if(measureScalars) {
+    if(measureScalars && t>eSteps) {
       // Compute Scalars
       PE = path.getPE();
       VE = path.getVE();
     
       // Output Scalars
       scalarTrace << t << " " << PE << " " << VE << "\n";
-      cout << t << " " << PE << " " << VE << "\n";
     }
     
     // Percentage Complete
@@ -78,9 +68,10 @@ int main (int argc, char* argv[])
   // Output results
   PE = path.getPE();
   VE = path.getVE();
+  cout << "\nFinal Measurements:\n";
   cout << PE << " " << VE << " " << "\n"; 
 
-  cout << "\n"; 
+  cout << "\nDone.\n\n"; 
   
   return 0;
 }

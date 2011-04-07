@@ -56,6 +56,7 @@ private:
   // Potential Functions
   double getV( const int iPart, const int iBead ); // Get Potential for iPart, iBead
   double getdV( const int iPart, const int iBead ); // Get Derivative of Potential for iPart, iBead
+  rowvec getgradV( const int iPart, const int iBead ); // Get Gradient of Potential for iPart, iBead
   
   // Molecular Dynamics Functions
   void UpdateF( field<rowvec>& F , field<rowvec>& R );
