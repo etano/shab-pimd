@@ -1,6 +1,7 @@
 CC = g++
-CFLAGS = -I /usr/include/boost -larmadillo -c -O1 -msse2
-LDFLAGS = -I /usr/include/boost -larmadillo -O1 -msse2
+CFLAGS = -c -O1 -msse2
+LDFLAGS = -O1 -msse2
+LIBFLAGS = -larmadillo -framework Accelerate
 SOURCES = shab-pimd.cpp
 SOURCES += Paths.cpp
 SOURCES += RNG.cpp
@@ -14,7 +15,7 @@ EXECUTABLE = shab-pimd
 all: $(SOURCES) $(EXECUTABLE)
 		
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ $(LIBFLAGS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@

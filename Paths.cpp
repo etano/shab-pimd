@@ -1,3 +1,4 @@
+
 #include "Paths.h"
 
 // Paths constructor
@@ -41,15 +42,37 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
     M(iBead) = m;
   }
   
-  // Set up matrices  
-  R.zeros(nBead,nD,nPart); // Positions
-  nR.zeros(nBead,nD,nPart); // Positions
-  V.zeros(nBead,nD,nPart); // Velocities
-  nV.zeros(nBead,nD,nPart); // Velocities
-  A.zeros(nBead,nD,nPart); // Accelerations
-  nA.zeros(nBead,nD,nPart); // Accelerations
-  F.zeros(nBead,nD,nPart); // Forces  
-  nF.zeros(nBead,nD,nPart); // Forces  
+  // Size vector fields  
+  
+  // Positions
+  R.set_size(nPart,nBead);
+  nR.set_size(nPart,nBead);
+  
+  // Velocities
+  V.set_size(nPart,nBead);
+  nV.set_size(nPart,nBead);
+  
+  // Accelerations
+  A.set_size(nPart,nBead);
+  nA.set_size(nPart,nBead);
+  
+  // Forces
+  F.set_size(nPart,nBead);
+  nF.set_size(nPart,nBead);
+  
+  // Size vectors
+  for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {  
+      R(iPart,iBead).zeros(nD); // Positions
+      nR(iPart,iBead).zeros(nD); // Positions
+      V(iPart,iBead).zeros(nD); // Velocities
+      nV(iPart,iBead).zeros(nD); // Velocities
+      A(iPart,iBead).zeros(nD); // Accelerations
+      nA(iPart,iBead).zeros(nD); // Accelerations
+      F(iPart,iBead).zeros(nD); // Forces  
+      nF(iPart,iBead).zeros(nD); // Forces  
+    }
+  }
   
   // Initialize system
   InitPosition(R);
@@ -67,42 +90,36 @@ Paths::~Paths()
 //////////////////////
 
 // Initialize Positions
-void Paths::InitPosition( cube& R )
+void Paths::InitPosition( field<rowvec>& R )
 {  
   for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      for (unsigned int iD = 0; iD < nD; iD += 1) {
-        R(iBead,iD,iPart) = 0.0;    
-      }
+      R(iPart,iBead).zeros();
     }
   }
 }
 
 // Initialize Velocities
-void Paths::InitVelocity( cube& V , double T )
+void Paths::InitVelocity( field<rowvec>& V , double T )
 {
-  rowvec netP(nD);
-  double netE, newP, vscale;
+  rowvec newP(nD), netP(nD), avgP(nD);
+  double netE, vScale;
   
   for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
   
-    netP.zeros();
     netE = 0.0;
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      for (unsigned int iD = 0; iD < nD; iD += 1) {
-        newP = unifRand() - 0.5;
-        netP(iD) += newP;
-        netE += newP*newP;
-        V(iBead,iD,iPart) = newP;        
-      }
+      newP.randu();
+      newP -= 0.5;
+      netP += newP;
+      netE += norm(newP,2);
+      V(iPart,iBead) = newP;
     }
 
-    netP = netP/(1.0*nPart);
-    vscale = sqrt(nD*nPart*T/(m*netE));
+    avgP = netP/(1.0*nPart);
+    vScale = sqrt(nD*nPart*nBead*T/(m*netE));
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      for (unsigned int iD = 0; iD < nD; iD += 1) {
-        V(iBead,iD,iPart) = (V(iBead,iD,iPart) - netP(iD))*vscale;
-      }
+      V(iPart,iBead) = (V(iPart,iBead) - avgP)*vScale;
     }
     
   }
@@ -120,13 +137,13 @@ void Paths::PutInBox(rowvec& Ri)
   }*/
 }
   
-double Paths::Distance(rowvec Ri, rowvec Rj)
+double Paths::Distance(rowvec& Ri, rowvec& Rj)
 {  
-  double d = norm(Displacement(Ri, Rj),2);  
+  double d = norm( Displacement(Ri, Rj) , 2 );  
   return d;
 }
   
-rowvec Paths::Displacement(rowvec Ri, rowvec Rj)
+rowvec Paths::Displacement(rowvec& Ri, rowvec& Rj)
 {
   rowvec dR = Ri - Rj;  
   PutInBox(dR);  
@@ -146,7 +163,7 @@ double Paths::getPE()
 
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      dR = Displacement(R.slice(iPart).row(iBead), R.slice(iPart).row(bL[iBead+1]));
+      dR = Displacement( R(iPart,iBead) , R(iPart,bL[iBead+1]) );
       total += mnBeadOver2Beta2hbar2 * norm(dR,2) - oneOvernBead * getV(iPart, iBead);
     }
   }
@@ -163,12 +180,12 @@ double Paths::getVE()
 
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     rc.zeros();
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) rc += R.slice(iPart).row(iBead);
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) rc += R(iPart,iBead);
     rc = rc * oneOvernBead;
     PutInBox(rc);
     
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      dR = Displacement(R.slice(iPart).row(iBead), rc);
+      dR = Displacement( R(iPart,iBead) , rc );
       total += 0.5 * norm(dR,2) * getdV(iPart, iBead) + getV(iPart, iBead);
     }
   }
@@ -181,17 +198,19 @@ double Paths::getVE()
 /////////////////////////
 
 // Get Potential for iPart, iBead
-// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL, i.e. (1/2) m w^2 r^2 <---------------------
+// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
+// V = (1/2) m w^2 r^2
 double Paths::getV( const int iPart, const int iBead )
 {
-  return 0.5 * mOmega2 * norm(R.slice(iPart).row(iBead),2);
+  return 0.5 * mOmega2 * norm( R(iPart,iBead) , 2 );
 }
 
 // Get Derivative of Potential for iPart, iBead
-// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL, i.e. m w^2 |r| <---------------------
+// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
+// dV/dr = m w^2 r
 double Paths::getdV( const int iPart, const int iBead )
 {
-  return mOmega2 * norm(R.slice(iPart).row(iBead),1);
+  return mOmega2 * norm( R(iPart,iBead) , 1 );
 }
 
 //////////////////////////////////
@@ -202,21 +221,24 @@ double Paths::getdV( const int iPart, const int iBead )
 void Paths::takeStep()
 {
   UpdateF(F, R);
-  A = F/m;
-  nR = R + V*dt + 0.5*A*dt*dt;
   
-  rowvec Rtemp;
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      Rtemp = nR.slice(iPart).row(iBead);
-      PutInBox(Rtemp);
-      nR.slice(iPart).row(iBead) = Rtemp;
+      A(iPart,iBead) = F(iPart,iBead)/m;
+      nR(iPart,iBead) = R(iPart,iBead) + V(iPart,iBead)*dt + 0.5*A(iPart,iBead)*dt*dt;
+      PutInBox( nR(iPart,iBead) );
     }
   }
   
   UpdateF(nF, nR);
-  nA = nF/m;
-  nV = V + 0.5*(A + nA)*dt;
+  
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      nA(iPart,iBead) = nF(iPart,iBead)/m;
+      nV(iPart,iBead) = V(iPart,iBead) + 0.5*(A(iPart,iBead) + nA(iPart,iBead))*dt;
+    }
+  }
+  
   R = nR;  
   V = nV;
 }
@@ -224,21 +246,25 @@ void Paths::takeStep()
 // Update the Force for every bead of every particle
 // !! RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
 // !! F_i = -m_i * w_p * w_p ( r_i+1 + r_i-1 - 2 * r_i ) - (1/P) * (dV/dr_i)
-void Paths::UpdateF( cube& F , cube& R )
+void Paths::UpdateF( field<rowvec>& F , field<rowvec>& R )
 {
-  rowvec Rtemp;
+  rowvec dR1, dR2;
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
   
     // Handle iBead = 0 case
-    Rtemp = R.slice(iPart).row(bL[1]) + R.slice(iPart).row(nBead-1) - 2.0*R.slice(iPart).row(0);
-    PutInBox(Rtemp);
-    F.slice(iPart).row(0) = -M(0)*wp*wp*Rtemp - oneOvernBead*getdV(iPart,0);
+    dR1 = R(iPart,bL[1]) - R(iPart,0);
+    dR2 = R(iPart,nBead-1) - R(iPart,0);
+    PutInBox(dR1);
+    PutInBox(dR2);
+    F(iPart,0) = -M(0)*wp*wp*(dR1 + dR2) - oneOvernBead*getdV(iPart,0);
     
     // Do the rest of the time slices
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
-      Rtemp = R.slice(iPart).row(bL[iBead+1]) + R.slice(iPart).row(iBead-1) - 2.0*R.slice(iPart).row(iBead);
-      PutInBox(Rtemp);
-      F.slice(iPart).row(iBead) = -M(iBead)*wp*wp*Rtemp - oneOvernBead*getdV(iPart,iBead);
+      dR1 = R(iPart,bL[iBead+1]) - R(iPart,iBead);
+      dR2 = R(iPart,iBead-1) - R(iPart,iBead);
+      PutInBox(dR1);
+      PutInBox(dR2);
+      F(iPart,iBead) = -M(iBead)*wp*wp*(dR1 + dR2) - oneOvernBead*getdV(iPart,iBead);
     }
     
   }

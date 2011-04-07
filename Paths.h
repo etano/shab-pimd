@@ -21,10 +21,10 @@ public:
   void takeStep(); // Take a step
   
   // 3D Matrices
-  cube R, nR; // Positions
-  cube V, nV; // Velocities
-  cube A, nA; // Accelerations
-  cube F, nF; // Forces
+  field<rowvec> R, nR; // Positions
+  field<rowvec> V, nV; // Velocities
+  field<rowvec> A, nA; // Accelerations
+  field<rowvec> F, nF; // Forces
   
 protected:
   //protected things
@@ -45,20 +45,20 @@ private:
   double w; // Default (harmonic oscillator units)
   
   // System Initialization
-  void InitPosition( cube& R );
-  void InitVelocity( cube& V , double T );
+  void InitPosition( field<rowvec>& R );
+  void InitVelocity( field<rowvec>& V , double T );
   
   // Periodic Boundary Conditions
   void PutInBox( rowvec& Ri );
-  double Distance( rowvec Ri , rowvec Rj );
-  rowvec Displacement( rowvec Ri , rowvec Rj );  
+  double Distance( rowvec& Ri , rowvec& Rj );
+  rowvec Displacement( rowvec& Ri , rowvec& Rj );  
   
   // Potential Functions
   double getV( const int iPart, const int iBead ); // Get Potential for iPart, iBead
   double getdV( const int iPart, const int iBead ); // Get Derivative of Potential for iPart, iBead
   
   // Molecular Dynamics Functions
-  void UpdateF( cube& F , cube& R );
+  void UpdateF( field<rowvec>& F , field<rowvec>& R );
   
   // Masses
   rowvec M;

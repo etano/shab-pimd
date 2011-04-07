@@ -1,5 +1,5 @@
-#ifndef PIMCF_H
-#define PIMCF_H
+#ifndef SHABPIMD_H
+#define SHABPIMD_H
 
 #include "StandardLibs.h"       // Standard libraries
 #include "RNG.h" // random num gens

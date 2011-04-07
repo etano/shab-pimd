@@ -13,6 +13,9 @@ int main (int argc, char* argv[])
   double L = atof(argv[6]); // Simulation box size
 
   cout << "\nN: " << nPart << "\nD: " << nD << "\nM: " << nBead << "\nBeta: " << beta << "\nTime Step (s): " << dt << "\nBox Size: " << L << "\n";
+
+  // Random Seed
+  srand ( time(NULL) );
   
   // Measurements
   bool measureScalars = 1;
@@ -31,7 +34,7 @@ int main (int argc, char* argv[])
   Paths path(nPart,nD,nBead,beta,dt,L);   
   
   // Equilibration
-  int eSteps = 1000;
+  int eSteps = 0;
   int perSkip = eSteps/10;
   cout << "Equilibrating...\n";
   for(unsigned int t = 0; t < eSteps; t++) {
@@ -47,7 +50,7 @@ int main (int argc, char* argv[])
   double PE, VE;
   
   // Start Recording Data
-  int rSteps = 20000;
+  int rSteps = 100;
   perSkip = rSteps/10;
   cout << "Recording Data...\n";
   for(unsigned int t = 0; t < rSteps; t++) {
@@ -62,6 +65,7 @@ int main (int argc, char* argv[])
     
       // Output Scalars
       scalarTrace << t << " " << PE << " " << VE << "\n";
+      cout << t << " " << PE << " " << VE << "\n";
     }
     
     // Percentage Complete
