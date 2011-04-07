@@ -1,14 +1,15 @@
 #include "Paths.h"
 
 // Paths constructor
-Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn )
+Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn )
 {
   // Set constants
   nPart = nPartIn;
   nD = nDIn;
   nBead = nBeadIn;
-  beta = betaIn;    
+  beta = betaIn;
   dt = dtIn;
+  L = LIn;    
   
   m = 1.0; // Default (harmonic oscillator units)
   hbar = 1.0; // Default (harmonic oscillator units)
@@ -96,7 +97,7 @@ void Paths::InitVelocity( cube& V , double T )
       }
     }
 
-    netP = netP*(1.0/(1.0*nPart));
+    netP = netP/(1.0*nPart);
     vscale = sqrt(nD*nPart*T/(m*netE));
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
       for (unsigned int iD = 0; iD < nD; iD += 1) {
@@ -107,6 +108,31 @@ void Paths::InitVelocity( cube& V , double T )
   }
 }
 
+////////////////////////////////////////////////////
+/* Routines to ensure periodic boundary coditions */
+////////////////////////////////////////////////////
+
+void Paths::PutInBox(rowvec& Ri)
+{  
+  /*for(unsigned int i = 0; i < nD; i++) {
+    while(Ri(i) > L/2.0) Ri(i) -= L;
+    while(Ri(i) < -L/2.0) Ri(i) += L;
+  }*/
+}
+  
+double Paths::Distance(rowvec Ri, rowvec Rj)
+{  
+  double d = norm(Displacement(Ri, Rj),2);  
+  return d;
+}
+  
+rowvec Paths::Displacement(rowvec Ri, rowvec Rj)
+{
+  rowvec dR = Ri - Rj;  
+  PutInBox(dR);  
+  return dR;
+}
+
 /////////////////
 /* OBSERVABLES */
 /////////////////
@@ -115,13 +141,13 @@ void Paths::InitVelocity( cube& V , double T )
 // (See eq. 74 from Ref. 1)
 double Paths::getPE()
 {
-  rowvec dr(nD);
+  rowvec dR(nD);
   double total = 0.0;
 
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      dr = R.slice(iPart).row(iBead) - R.slice(iPart).row(bL[iBead+1]);
-      total += mnBeadOver2Beta2hbar2 * norm(dr,2) - oneOvernBead * getV(iPart, iBead);
+      dR = Displacement(R.slice(iPart).row(iBead), R.slice(iPart).row(bL[iBead+1]));
+      total += mnBeadOver2Beta2hbar2 * norm(dR,2) - oneOvernBead * getV(iPart, iBead);
     }
   }
   
@@ -132,17 +158,18 @@ double Paths::getPE()
 // (See eqs. 75, 76 from Ref. 1)
 double Paths::getVE()
 {
-  rowvec rc(nD), dr(nD);
+  rowvec rc(nD), dR(nD);
   double total = 0.0;
 
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     rc.zeros();
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) rc += R.slice(iPart).row(iBead);
     rc = rc * oneOvernBead;
+    PutInBox(rc);
     
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      dr = R.slice(iPart).row(iBead) - rc;
-      total += 0.5 * norm(dr,2) * getdV(iPart, iBead) + getV(iPart, iBead);
+      dR = Displacement(R.slice(iPart).row(iBead), rc);
+      total += 0.5 * norm(dR,2) * getdV(iPart, iBead) + getV(iPart, iBead);
     }
   }
   
@@ -177,10 +204,20 @@ void Paths::takeStep()
   UpdateF(F, R);
   A = F/m;
   nR = R + V*dt + 0.5*A*dt*dt;
+  
+  rowvec Rtemp;
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      Rtemp = nR.slice(iPart).row(iBead);
+      PutInBox(Rtemp);
+      nR.slice(iPart).row(iBead) = Rtemp;
+    }
+  }
+  
   UpdateF(nF, nR);
   nA = nF/m;
   nV = V + 0.5*(A + nA)*dt;
-  R = nR;
+  R = nR;  
   V = nV;
 }
 
@@ -189,16 +226,20 @@ void Paths::takeStep()
 // !! F_i = -m_i * w_p * w_p ( r_i+1 + r_i-1 - 2 * r_i ) - (1/P) * (dV/dr_i)
 void Paths::UpdateF( cube& F , cube& R )
 {
+  rowvec Rtemp;
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+  
     // Handle iBead = 0 case
-    F.slice(iPart).row(0) = -M(0) * wp * wp *
-                            (R.slice(iPart).row(1) + R.slice(iPart).row(nBead-1) - 2.0*R.slice(iPart).row(0)) - 
-                            oneOvernBead * getdV(iPart,0);
+    Rtemp = R.slice(iPart).row(bL[1]) + R.slice(iPart).row(nBead-1) - 2.0*R.slice(iPart).row(0);
+    PutInBox(Rtemp);
+    F.slice(iPart).row(0) = -M(0)*wp*wp*Rtemp - oneOvernBead*getdV(iPart,0);
+    
     // Do the rest of the time slices
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
-      F.slice(iPart).row(iBead) = -M(iBead) * wp * wp * 
-                                  (R.slice(iPart).row(bL[iBead+1]) + R.slice(iPart).row(iBead-1) - 2.0*R.slice(iPart).row(iBead)) - 
-                                  oneOvernBead*getdV(iPart,iBead);
+      Rtemp = R.slice(iPart).row(bL[iBead+1]) + R.slice(iPart).row(iBead-1) - 2.0*R.slice(iPart).row(iBead);
+      PutInBox(Rtemp);
+      F.slice(iPart).row(iBead) = -M(iBead)*wp*wp*Rtemp - oneOvernBead*getdV(iPart,iBead);
     }
+    
   }
 }

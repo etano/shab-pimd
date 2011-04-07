@@ -10,8 +10,9 @@ int main (int argc, char* argv[])
   int nBead = atoi(argv[3]); // Number of time slices
   double beta = atof(argv[4]); // Inverse temperature (kb = 1)
   double dt = atof(argv[5]); // Time step of simulation
+  double L = atof(argv[6]); // Simulation box size
 
-  cout << "\nN: " << nPart << "\nD: " << nD << "\nM: " << nBead << "\nBeta: " << beta << "\nTime Step (s): " << dt << "\n";
+  cout << "\nN: " << nPart << "\nD: " << nD << "\nM: " << nBead << "\nBeta: " << beta << "\nTime Step (s): " << dt << "\nBox Size: " << L << "\n";
   
   // Measurements
   bool measureScalars = 1;
@@ -27,7 +28,7 @@ int main (int argc, char* argv[])
   cout << scientific << setprecision(4); 
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt);   
+  Paths path(nPart,nD,nBead,beta,dt,L);   
   
   // Equilibration
   int eSteps = 1000;
@@ -46,7 +47,7 @@ int main (int argc, char* argv[])
   double PE, VE;
   
   // Start Recording Data
-  int rSteps = 10000;
+  int rSteps = 20000;
   perSkip = rSteps/10;
   cout << "Recording Data...\n";
   for(unsigned int t = 0; t < rSteps; t++) {
@@ -73,7 +74,6 @@ int main (int argc, char* argv[])
   // Output results
   PE = path.getPE();
   VE = path.getVE();
-  path.R.print();
   cout << PE << " " << VE << " " << "\n"; 
 
   cout << "\n"; 
