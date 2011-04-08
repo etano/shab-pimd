@@ -77,7 +77,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   // Initialize system
   InitPosition(R);
   InitVelocity(V, 1.0/beta);
-  
+  UpdateF(F, R); 
 }
 
 // Paths destructor
@@ -230,7 +230,6 @@ rowvec Paths::getgradV( const int iPart, const int iBead )
 // The Verlet time-stepping algorithm, 'dt' is the time step.
 void Paths::takeStep()
 {
-  UpdateF(F, R);
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
