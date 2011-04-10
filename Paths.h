@@ -10,7 +10,7 @@ using namespace arma;
 class Paths
 {
 public:
-  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn );  // Constructor
+  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool stageIn );  // Constructor
   ~Paths(); // Destructor
 
   // Observables Functions
@@ -19,11 +19,12 @@ public:
   
   // Molecular Dynamics Functions
   void takeStep(); // Take a step
+  void takeStepStage(); // Take a step (using staging)
   
   // 3D Matrices
-  field<rowvec> R, nR; // Positions
-  field<rowvec> V, nV; // Velocities
-  field<rowvec> A, nA; // Accelerations
+  field<rowvec> R, nR; // Positions R
+  field<rowvec> U, nU; // Positions U (staging positions)
+  field<rowvec> P, nP; // Velocities
   field<rowvec> F, nF; // Forces
   
 protected:
@@ -45,8 +46,8 @@ private:
   double w; // Default (harmonic oscillator units)
   
   // System Initialization
-  void InitPosition( field<rowvec>& R );
-  void InitVelocity( field<rowvec>& V , double T );
+  void InitPosition( field<rowvec>& RX );
+  void InitMomentum( double T );
   
   // Periodic Boundary Conditions
   void PutInBox( rowvec& Ri );
@@ -54,18 +55,24 @@ private:
   rowvec Displacement( rowvec& Ri , rowvec& Rj );  
   
   // Potential Functions
-  double getV( const int iPart, const int iBead ); // Get Potential for iPart, iBead
+  double getV( const int iPart, const int iBsead ); // Get Potential for iPart, iBead
   double getdV( const int iPart, const int iBead ); // Get Derivative of Potential for iPart, iBead
   rowvec getgradV( const int iPart, const int iBead ); // Get Gradient of Potential for iPart, iBead
   
   // Molecular Dynamics Functions
-  void UpdateF( field<rowvec>& F , field<rowvec>& R );
+  void UpdateF( field<rowvec>& FX , field<rowvec>& RX );
   
   // Masses
   rowvec M;
   
   int *bL; // Bead Loop
-  
+
+  // Staging
+  bool stage; // 1 - Use staging, 0 - Don't use staging
+  void UtoRStage(); // Switch from U to R
+  rowvec getgradVStage( const int iPart , const int iBead ); // Get Gradient of Potential for iPart, iBead (using staging)
+  void UpdateFStage( field<rowvec>& FX , field<rowvec>& UX );
+
 };
 
 #endif

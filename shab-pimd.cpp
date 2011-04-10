@@ -11,9 +11,10 @@ int main (int argc, char* argv[])
   double beta = atof(argv[4]); // Inverse temperature (kb = 1)
   double dt = atof(argv[5]); // Time step of simulation
   double L = atof(argv[6]); // Simulation box size
+  bool stage = atoi(argv[7]); // Simulation box size
 
   cout << "\nSimulation Settings:";
-  cout << "\nN: " << nPart << "\nD: " << nD << "\nM: " << nBead << "\nBeta: " << beta << "\nTime Step (s): " << dt << "\nBox Size: " << L << "\n";
+  cout << "\nN: " << nPart << "\nD: " << nD << "\nM: " << nBead << "\nBeta: " << beta << "\nTime Step (s): " << dt << "\nBox Size: " << L << "\nStaging?: " << stage << "\n";
 
   // Random Seed
   srand ( time(NULL) );
@@ -32,11 +33,15 @@ int main (int argc, char* argv[])
   cout << scientific << setprecision(4); 
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L);   
+  Paths path(nPart,nD,nBead,beta,dt,L,stage);   
   
   // Initialize observables;
-  double PE, VE;
-  scalarTrace << "t PE VE\n";
+  double PE, VE; 
+  PE = path.getPE();
+  VE = path.getVE();
+  cout << "\nInitial Measurements:\n";
+  cout << "PE: " << PE << " VE: " << VE << " " << "\n"; 
+  scalarTrace << "t PE VE R00\n";
   
   // Main Simulation Loop
   int eSteps = 0;
@@ -47,7 +52,8 @@ int main (int argc, char* argv[])
   for(unsigned int t = 0; t < totSteps; t++) {
     
     // Verlet Step
-    path.takeStep();
+    if (stage) path.takeStepStage();
+    else path.takeStep();
   
     if(measureScalars && t>eSteps) {
       // Compute Scalars
@@ -55,7 +61,7 @@ int main (int argc, char* argv[])
       VE = path.getVE();
     
       // Output Scalars
-      scalarTrace << t << " " << PE << " " << VE << "\n";
+      scalarTrace << t << " " << PE << " " << VE << " " << path.R(0,0)(0) << "\n";
     }
     
     // Percentage Complete
@@ -69,7 +75,8 @@ int main (int argc, char* argv[])
   PE = path.getPE();
   VE = path.getVE();
   cout << "\nFinal Measurements:\n";
-  cout << PE << " " << VE << " " << "\n"; 
+  cout << "PE: " << PE << " VE: " << VE << " " << "\n"; 
+  path.R(0,0).print();
 
   cout << "\nDone.\n\n"; 
   

@@ -9,7 +9,7 @@ nPart = 1
 nBead = 10
 nD = 1
 beta = 10
-dt = 0.0001
+dt = 0.001
 
 filename = "-" + str(nPart) + "-" + str(nD) + "-" + str(nBead) + "-" + str(beta) + "-" + str(dt)
     

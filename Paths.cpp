@@ -2,7 +2,7 @@
 #include "Paths.h"
 
 // Paths constructor
-Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn )
+Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool stageIn )
 {
   // Set constants
   nPart = nPartIn;
@@ -11,6 +11,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   beta = betaIn;
   dt = dtIn;
   L = LIn;    
+  stage = stageIn;
   
   m = 1.0; // Default (harmonic oscillator units)
   hbar = 1.0; // Default (harmonic oscillator units)
@@ -38,23 +39,31 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   
   // Set arbitrary masses
   M.set_size(nBead);
+  if (stage) {
+    M(0) = m;
+    for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
+      M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m;
+    }
+  }
   for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
     M(iBead) = m;
   }
   
   // Size vector fields  
   
-  // Positions
+  // Positions R
   R.set_size(nPart,nBead);
   nR.set_size(nPart,nBead);
   
-  // Velocities
-  V.set_size(nPart,nBead);
-  nV.set_size(nPart,nBead);
+  // Positions U
+  if (stage) {
+    U.set_size(nPart,nBead);
+    nU.set_size(nPart,nBead);    
+  }
   
-  // Accelerations
-  A.set_size(nPart,nBead);
-  nA.set_size(nPart,nBead);
+  // Momenta
+  P.set_size(nPart,nBead);
+  nP.set_size(nPart,nBead);
   
   // Forces
   F.set_size(nPart,nBead);
@@ -63,21 +72,44 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   // Size vectors
   for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {  
-      R(iPart,iBead).zeros(nD); // Positions
-      nR(iPart,iBead).zeros(nD); // Positions
-      V(iPart,iBead).zeros(nD); // Velocities
-      nV(iPart,iBead).zeros(nD); // Velocities
-      A(iPart,iBead).zeros(nD); // Accelerations
-      nA(iPart,iBead).zeros(nD); // Accelerations
-      F(iPart,iBead).zeros(nD); // Forces  
-      nF(iPart,iBead).zeros(nD); // Forces  
+
+      // Positions R
+      R(iPart,iBead).zeros(nD);
+      nR(iPart,iBead).zeros(nD);
+      
+      // Positions U
+      if (stage) {
+        U(iPart,iBead).zeros(nD);
+        nU(iPart,iBead).zeros(nD);
+      }
+
+      // Momenta
+      P(iPart,iBead).zeros(nD); 
+      nP(iPart,iBead).zeros(nD);
+
+      // Forces 
+      F(iPart,iBead).zeros(nD);
+      nF(iPart,iBead).zeros(nD); 
+
     }
   }
   
   // Initialize system
-  InitPosition(R);
-  InitVelocity(V, 1.0/beta);
-  UpdateF(F, R); 
+  if (stage) {
+    InitPosition(U);
+    UtoRStage();
+  } else {
+    InitPosition(R);
+  }
+  InitMomentum(1.0/beta);
+
+  // Compute First Force
+  if (stage) {
+    UpdateFStage(F, U); 
+  } else {
+    UpdateF(F, R);
+  }
+
 }
 
 // Paths destructor
@@ -90,40 +122,40 @@ Paths::~Paths()
 //////////////////////
 
 // Initialize Positions
-void Paths::InitPosition( field<rowvec>& R )
+void Paths::InitPosition( field<rowvec>& X )
 {  
   for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      R(iPart,iBead).zeros();
+      X(iPart,iBead).zeros();
     }
   }
 }
 
-// Initialize Velocities
-void Paths::InitVelocity( field<rowvec>& V , double T )
+// Initialize Momentum
+void Paths::InitMomentum( double T )
 {
   rowvec newP(nD), netP(nD), avgP(nD);
-  double netE, vScale;
-  
-  for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-  
-    netE = 0.0;
-    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+  double netE, pScale;
+    
+  netE = 0.0;
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {  
       for (unsigned int iD = 0; iD < nD; iD += 1) {
         newP(iD) = unifRand() - 0.5;
       }
       netP += newP;
       netE += dot(newP,newP);
-      V(iPart,iBead) = newP;
+      P(iPart,iBead) = newP;
     }
+  }
 
-    avgP = netP/(1.0*nPart);
-    if (nPart < 2) avgP.zeros();
-    vScale = sqrt(nD*nPart*T/(m*netE*nBead));
-    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      V(iPart,iBead) = (V(iPart,iBead) - avgP)*vScale;
+  avgP = netP/(1.0*nPart);
+  if (nPart < 2) avgP.zeros();
+  pScale = sqrt(m*nD*nPart*nBead*T/netE);
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      P(iPart,iBead) = (P(iPart,iBead) - avgP)*pScale;      
     }
-    
   }
 }
 
@@ -229,12 +261,10 @@ rowvec Paths::getgradV( const int iPart, const int iBead )
 
 // The Verlet time-stepping algorithm, 'dt' is the time step.
 void Paths::takeStep()
-{
-  
+{  
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      A(iPart,iBead) = F(iPart,iBead)/m;
-      nR(iPart,iBead) = R(iPart,iBead) + V(iPart,iBead)*dt + 0.5*A(iPart,iBead)*dt*dt;
+      nR(iPart,iBead) = R(iPart,iBead) + P(iPart,iBead)*dt/M(iBead) + 0.5*F(iPart,iBead)*dt*dt/M(iBead);
       PutInBox( nR(iPart,iBead) );
     }
   }
@@ -243,38 +273,106 @@ void Paths::takeStep()
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      nA(iPart,iBead) = nF(iPart,iBead)/m;
-      nV(iPart,iBead) = V(iPart,iBead) + 0.5*(A(iPart,iBead) + nA(iPart,iBead))*dt;
+      nP(iPart,iBead) = P(iPart,iBead) + 0.5*(F(iPart,iBead) + nF(iPart,iBead))*dt;
     }
   }
   
   R = nR;  
-  V = nV;
+  P = nP;
+  F = nF;
 }
 
 // Update the Force for every bead of every particle
-// !! RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
-// !! F_i = -m_i * w_p * w_p ( r_i+1 + r_i-1 - 2 * r_i ) - (1/P) * (dV/dr_i)
-void Paths::UpdateF( field<rowvec>& F , field<rowvec>& R )
+void Paths::UpdateF( field<rowvec>& FX , field<rowvec>& RX )
 {
   rowvec dR1, dR2;
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
   
     // Handle iBead = 0 case
-    dR1 = R(iPart,bL[1]) - R(iPart,0);
-    dR2 = R(iPart,nBead-1) - R(iPart,0);
+    dR1 = RX(iPart,bL[1]) - RX(iPart,0);
+    dR2 = RX(iPart,nBead-1) - RX(iPart,0);
     PutInBox(dR1);
     PutInBox(dR2);
-    F(iPart,0) = -M(0)*wp*wp*(dR1 + dR2) - oneOvernBead*getgradV(iPart,0);
+    FX(iPart,0) = M(0)*wp*wp*(dR1 + dR2) - oneOvernBead*getgradV(iPart,0);
     
     // Do the rest of the time slices
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
-      dR1 = R(iPart,bL[iBead+1]) - R(iPart,iBead);
-      dR2 = R(iPart,iBead-1) - R(iPart,iBead);
+      dR1 = RX(iPart,bL[iBead+1]) - RX(iPart,iBead);
+      dR2 = RX(iPart,iBead-1) - RX(iPart,iBead);
       PutInBox(dR1);
       PutInBox(dR2);
-      F(iPart,iBead) = -M(iBead)*wp*wp*(dR1 + dR2) - oneOvernBead*getgradV(iPart,iBead);
+      FX(iPart,iBead) = M(iBead)*wp*wp*(dR1 + dR2) - oneOvernBead*getgradV(iPart,iBead);
     }
     
   }
+}
+
+///////////////////////
+/* Staging Functions */
+///////////////////////
+
+// The Verlet time-stepping algorithm, 'dt' is the time step.
+// See eq 116, Ref 1
+void Paths::takeStepStage()
+{  
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      nU(iPart,iBead) = U(iPart,iBead) + P(iPart,iBead)*dt/M(iBead) + 0.5*F(iPart,iBead)*dt*dt/M(iBead);
+      PutInBox( nU(iPart,iBead) );
+    }
+  }
+  
+  UpdateFStage(nF, nU);
+  
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      nP(iPart,iBead) = P(iPart,iBead) + 0.5*(F(iPart,iBead) + nF(iPart,iBead))*dt;
+    }
+  }
+  
+  U = nU;  
+  P = nP;
+  F = nF;
+
+  UtoRStage();
+}
+
+// Assign actual positions, going from ui's to xi's
+// See eq 87, Ref 1
+void Paths::UtoRStage()
+{
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    R(iPart, 0) = U(iPart, 0);
+    for (unsigned int iBead = nBead-1; iBead > 0; iBead -= 1) {
+      R(iPart, iBead) = U(iPart, iBead) + ((1.0*iBead)/(iBead + 1.0))*R(iPart, bL[iBead+1]) + (1.0/(iBead + 1.0))*U(iPart, 0);
+    }  
+  }
+}
+
+// Update the Force for every bead of every particle
+// See eq 93, Ref 1
+void Paths::UpdateFStage( field<rowvec>& FX , field<rowvec>& UX )
+{
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    FX(iPart,0) = -getgradVStage(iPart,0);
+    for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
+      FX(iPart,iBead) = -M(iBead)*wp*wp*UX(iPart,iBead) - getgradVStage(iPart,iBead);
+    }    
+  }
+}
+
+// Get Derivative of Potential for iPart, iBead
+// See eq 94, Ref 1
+rowvec Paths::getgradVStage( const int iPart, const int iBead )
+{
+  rowvec total(nD);
+  if(iBead==0) {
+    total.zeros();
+    for (unsigned int jBead = 0; jBead < nBead; jBead += 1)
+      total += getgradV(iPart, jBead);
+    //total = oneOvernBead * total;
+  } else {
+    total = getgradV(iPart, iBead) + ((iBead - 1.0)/(1.0*iBead))*getgradV(iPart, iBead-1);
+  }
+  return total;
 }
