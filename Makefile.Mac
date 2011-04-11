@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -c -O1 -msse2
-LDFLAGS = -O1 -msse2
+CFLAGS = -c -I /opt/local/include -O1 -msse2
+LDFLAGS = -I /opt/local/include -O1 -msse2
 LIBFLAGS = -larmadillo -framework Accelerate
 SOURCES = shab-pimd.cpp
 SOURCES += Paths.cpp

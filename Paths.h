@@ -16,16 +16,12 @@ public:
   // Observables Functions
   double getPE(); // Get "Primitive" Energy estimator
   double getVE(); // Get "Virial" Energy estimator
+  double getR(); // Get Position estimator
+  double getR2(); // Get Position Squared estimator
   
   // Molecular Dynamics Functions
   void takeStep(); // Take a step
   void takeStepStage(); // Take a step (using staging)
-  
-  // 3D Matrices
-  field<rowvec> R, nR; // Positions R
-  field<rowvec> U, nU; // Positions U (staging positions)
-  field<rowvec> P, nP; // Velocities
-  field<rowvec> F, nF; // Forces
   
 protected:
   //protected things
@@ -38,12 +34,17 @@ private:
   double beta; // Inverse temperature
   double dt; // Time step  
   double L; // Simulation Box Size
-  double mnBeadOver2Beta2hbar2, oneOvernBead, oneOver2Beta, mOmega2, nBeadOver2Beta; // These are context clear (check Paths constructor)
   double wp; // Defined frequency
+  double oneOvernBead, oneOvernPartnBead, nDnPartOver2Beta, nDnPartnBeadOver2Beta, mw2, wp2, mwp2, kT; // These are context clear (check Paths constructor)
   
   double m; // Default (harmonic oscillator units)
   double hbar; // Default (harmonic oscillator units)
   double w; // Default (harmonic oscillator units)
+  
+  // 3D Matrices
+  field<rowvec> R; // Positions R
+  field<rowvec> P; // Momenta
+  field<rowvec> F, nF; // Forces
   
   // System Initialization
   void InitPosition( field<rowvec>& RX );
@@ -60,18 +61,25 @@ private:
   rowvec getgradV( const int iPart, const int iBead ); // Get Gradient of Potential for iPart, iBead
   
   // Molecular Dynamics Functions
-  void UpdateF( field<rowvec>& FX , field<rowvec>& RX );
+  void UpdateF( field<rowvec>& FX ); // Update Force
   
   // Masses
   rowvec M;
   
-  int *bL; // Bead Loop
+  // Bead Loop
+  ivec bL; 
 
   // Staging
   bool stage; // 1 - Use staging, 0 - Don't use staging
+  field<rowvec> U, nU; // Positions U (staging positions)
   void UtoRStage(); // Switch from U to R
-  rowvec getgradVStage( const int iPart , const int iBead ); // Get Gradient of Potential for iPart, iBead (using staging)
-  void UpdateFStage( field<rowvec>& FX , field<rowvec>& UX );
+  void UpdateFStage( field<rowvec>& FX ); // Update Force with Staging
+  
+  // Nose-Hoover Thermostat
+  bool useNH; // 1 - Use Nose-Hoover, 0 - Don't use Nose-Hoover
+  field<rowvec> NHR; // Nose-Hoover Positions R
+  field<rowvec> NHP; // Nose-Hoover Momenta P  
+  rowvec Q; // Nose-Hoover Masses Q
 
 };
 

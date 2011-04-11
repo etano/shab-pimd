@@ -1,10 +1,11 @@
 CC = g++
-CFLAGS = -c -I /opt/local/include -O1 -msse2
-LDFLAGS = -I /opt/local/include -O1 -msse2
-LIBFLAGS = -larmadillo -framework Accelerate
+CFLAGS = -c -I /usr/include/boost -O1 -msse2
+LDFLAGS = -I /usr/include/boost -O1 -msse2
+LIBFLAGS = -larmadillo
 SOURCES = shab-pimd.cpp
-SOURCES += Paths.cpp
 SOURCES += RNG.cpp
+SOURCES += Paths.cpp
+SOURCES += Stats.cpp
 SOURCES += rng/sfmt.cpp 
 SOURCES += rng/mersenne.cpp 
 SOURCES += rng/userintf.cpp

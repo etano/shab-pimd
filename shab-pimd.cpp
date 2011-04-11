@@ -36,17 +36,27 @@ int main (int argc, char* argv[])
   Paths path(nPart,nD,nBead,beta,dt,L,stage);   
   
   // Initialize observables;
-  double PE, VE; 
+  double PE, VE, R, R2; 
   PE = path.getPE();
   VE = path.getVE();
+  R = path.getR();
+  R2 = path.getR2();
   cout << "\nInitial Measurements:\n";
-  cout << "PE: " << PE << " VE: " << VE << " " << "\n"; 
-  scalarTrace << "t PE VE R00\n";
+  cout << "PE: " << PE << " VE: " << VE << " R: " << R << " R2: " << R2 << "\n"; 
+  scalarTrace << "t PE VE R R2\n";
+           
+  // Reset Scalars
+  PE = 0.0;
+  VE = 0.0;
+  R = 0.0;
+  R2 = 0.0;
   
   // Main Simulation Loop
-  int eSteps = 0;
+  int eSteps = 1;
   int rSteps = 100000;
   int totSteps = eSteps + rSteps;
+  int block = 1;
+  int nBlock = 0;
   int perSkip = totSteps/10;
   cout << "\nRunning Simulation:\n";
   for(unsigned int t = 0; t < totSteps; t++) {
@@ -56,27 +66,38 @@ int main (int argc, char* argv[])
     else path.takeStep();
   
     if(measureScalars && t>eSteps) {
-      // Compute Scalars
-      PE = path.getPE();
-      VE = path.getVE();
     
-      // Output Scalars
-      scalarTrace << t << " " << PE << " " << VE << " " << path.R(0,0)(0) << "\n";
+      // Compute Scalars
+      PE += path.getPE();
+      VE += path.getVE();
+      R += path.getR();
+      R2 += path.getR2();  
+            
+      // Blocking      
+      if ((t%block)==0) {  
+         
+        // Output Scalars
+        scalarTrace << t/block << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << "\n";  
+           
+        // Reset Scalars
+        PE = 0.0;
+        VE = 0.0;
+        R = 0.0;
+        R2 = 0.0;
+           
+        nBlock += 1;
+      }
     }
     
     // Percentage Complete
-    if((t%perSkip)==0) cout << 100.0*t/rSteps << "%\n";
+    if((t%perSkip)==0) cout << 100.0*t/totSteps << "%\n";
   }
   
   // Close files
   scalarTrace.close();
   
-  // Output results
-  PE = path.getPE();
-  VE = path.getVE();
-  cout << "\nFinal Measurements:\n";
-  cout << "PE: " << PE << " VE: " << VE << " " << "\n"; 
-  path.R(0,0).print();
+  // Compute and Output stats
+  if(measureScalars) statsScalars(scalarFile,nBlock);
 
   cout << "\nDone.\n\n"; 
   
