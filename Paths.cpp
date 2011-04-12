@@ -2,32 +2,36 @@
 #include "Paths.h"
 
 // Paths constructor
-Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool stageIn )
+Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn )
 {
   // Set constants
-  nPart = nPartIn;
-  nD = nDIn;
-  nBead = nBeadIn;
-  beta = betaIn;
-  dt = dtIn;
-  L = LIn;    
-  stage = stageIn;
+  nPart = nPartIn; // # of Particles
+  nD = nDIn; // # of Dimensions
+  nBead = nBeadIn; // # of Beads
+  beta = betaIn; // Inverse Temperature
+  dt = dtIn; // MD Time Step
+  L = LIn; // Size of Simulation Box
+  useStage = useStageIn; // Use Staging
+  useNH = useNHIn; // Use Nose-Hoover Thermostat
+  nNH = nNHIn; // Length of Nose-Hoover Thermostat
   
-  m = 1.0; // Default (harmonic oscillator units)
-  hbar = 1.0; // Default (harmonic oscillator units)
-  w = 1.0; // Default (harmonic oscillator units)
-  
-  wp = sqrt(nBead*1.0)/(beta*hbar);
-  wp2 = wp*wp;
-  mwp2 = m*wp*wp;
+  m = 1.0; // Particle Mass, Default 1
+  hbar = 1.0; // Plank's Constant/2pi, Default 1
+  k = 1.0; // Boltzmann Constant, Default 1
+   
+  // Harmonic Oscillator Constants
+  w = 1.0;
   mw2 = m*w*w;
   
+  // System Constants
+  kT = 1.0/beta;
+  wp = sqrt(nBead*1.0)/(beta*hbar);
+  wp2 = wp*wp;
+  mwp2 = m*wp*wp;  
   oneOvernBead = 1.0/(1.0*nBead);
   oneOvernPartnBead = 1.0/(1.0*nPart*nBead);
   nDnPartOver2Beta = 1.0*nD*nPart/(2.0*beta);
-  nDnPartnBeadOver2Beta = 1.0*nD*nPart*nBead/(2.0*beta);
-  
-  kT = 1.0/beta;
+  nDnPartnBeadOver2Beta = 1.0*nD*nPart*nBead/(2.0*beta);  
   
   // Set bead loop
   bL.set_size(2*nBead);
@@ -36,74 +40,69 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
     bL(iBead + nBead) = iBead;
   }
   
-  // Set masses
-  M.set_size(nBead);
-  if (useNH) Q.set_size(nBead); // N-H masses
-  if (stage) {
-    M(0) = m; // See eq 12.6.10, Ref 2
-    if (useNH) Q(0) = kT*beta*beta/(nBead*nBead); // See eq 12.6.14, Ref 2
-    for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
-      M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m; // See eq 12.6.10, Ref 2
-      if (useNH) Q(iBead) = kT/wp2; // See eq 12.6.14, Ref 2
-    }
-  } else {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      M(iBead) = m;
-    }
+  ///////////////////////
+  /* Initialize masses */
+  ///////////////////////
+  
+  // Masses M
+  // See eq 12.6.10, Ref 2
+  M.set_size(nBead);  
+  M(0) = m;
+  for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {  
+    if (useStage) M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m;
+    else M(iBead) = m;  
   }
   
-  // Size vector fields  
+  // Masses (Nose-Hoover) Q
+  // See eq 12.6.14, Ref 2 
+  if (useNH) {
+    Q.set_size(nBead);
+    Q(0) = kT/(w*w);  
+    for (unsigned int iBead = 1; iBead < nBead; iBead += 1)
+      Q(iBead) = kT/wp2;
+  }
+  
+  //////////////////////////////
+  /* Initialize Vector Fields */
+  //////////////////////////////
   
   // Positions R
   R.set_size(nPart,nBead);
-  if (useNH) NHR.set_size(nPart,nBead);
+  InitPosition(R);
   
-  // Positions U
-  if (stage) U.set_size(nPart,nBead);
+  // Positions (Staging) U
+  if (useStage) {  
+    U.set_size(nPart,nBead);
+    InitPosition(U);
+    UtoRStage();
+  }
   
-  // Momenta
-  P.set_size(nPart,nBead);
-  if (useNH) NHP.set_size(nPart,nBead);
-  
-  // Forces
-  F.set_size(nPart,nBead);
-  nF.set_size(nPart,nBead);
-  
-  // Size vectors
-  for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {  
-
-      // Positions R
-      R(iPart,iBead).zeros(nD);
-      
-      // Positions U
-      if (stage) U(iPart,iBead).zeros(nD);
-
-      // Momenta
-      P(iPart,iBead).zeros(nD); 
-
-      // Forces 
-      F(iPart,iBead).zeros(nD);
-      nF(iPart,iBead).zeros(nD); 
-
+  // Positions (Nose-Hoover) NHR
+  if (useNH) {
+    NHR = new field<rowvec>[nBead];
+    for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
+      NHR[iNH].set_size(nPart,nBead);
+      InitPosition(NHR[iNH]);
     }
   }
   
-  // Initialize system
-  if (stage) {
-    InitPosition(U);
-    UtoRStage();
-  } else {
-    InitPosition(R);
+  // Momenta P
+  P.set_size(nPart,nBead);
+  InitMomentum(P, M);
+  
+  // Momenta (Nose-Hoover) NHP
+  if (useNH) {
+    NHP = new field<rowvec>[nBead];
+    for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
+      NHP[iNH].set_size(nPart,nBead);      
+      InitMomentum(NHP[iNH], Q);  
+    }
   }
-  InitMomentum(1.0/beta);
-
-  // Compute First Force
-  if (stage) {
-    UpdateFStage(F); 
-  } else {
-    UpdateF(F);
-  }
+  
+  // Forces F
+  F.set_size(nPart,nBead);
+  if (useStage) UpdateFStage(F); 
+  else UpdateF(F);
 
 }
 
@@ -121,13 +120,13 @@ void Paths::InitPosition( field<rowvec>& X )
 {  
   for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      X(iPart,iBead).zeros();
+      X(iPart,iBead).zeros(nD);
     }
   }
 }
 
 // Initialize Momentum
-void Paths::InitMomentum( double T )
+void Paths::InitMomentum( field<rowvec>& Mom , rowvec& Mass )
 {
   rowvec newP(nD), netP(nD), avgP(nD);
   double netE, pScale;
@@ -141,7 +140,7 @@ void Paths::InitMomentum( double T )
       }
       netP += newP;
       netE += dot(newP,newP);
-      P(iPart,iBead) = newP;
+      Mom(iPart,iBead) = newP;
     }
   }
 
@@ -149,8 +148,8 @@ void Paths::InitMomentum( double T )
   if (nPart < 2) avgP.zeros();
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      pScale = sqrt(M(iBead)*nD*nPart*nBead*T/netE);
-      P(iPart,iBead) = (P(iPart,iBead) - avgP)*pScale;      
+      pScale = sqrt(Mass(iBead)*nD*nPart*nBead/(beta*netE));
+      Mom(iPart,iBead) = (Mom(iPart,iBead) - avgP)*pScale;      
     }
   }
 }
@@ -240,14 +239,14 @@ double Paths::getR()
   return oneOvernPartnBead * total;
 }
 
-// Absolute Position Estimator
+// Position Squared Estimator
 double Paths::getR2()
 {
   double total = 0.0;
 
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      total += norm( R(iPart,iBead) , 2 );
+      total += dot( R(iPart,iBead) , R(iPart,iBead) );
     }
   }
   
@@ -288,26 +287,7 @@ rowvec Paths::getgradV( const int iPart, const int iBead )
 
 // The Verlet time-stepping algorithm, 'dt' is the time step.
 void Paths::takeStep()
-{  
-  /*
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      R(iPart,iBead) += P(iPart,iBead)*dt/M(iBead) + 0.5*F(iPart,iBead)*dt*dt/M(iBead);
-      PutInBox( R(iPart,iBead) );
-    }
-  }
-    
-  UpdateF(nF);
-  
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      P(iPart,iBead) += 0.5*(F(iPart,iBead) + nF(iPart,iBead))*dt;
-    }
-  }
-  
-  F = nF;
-  */
-    
+{      
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;
@@ -356,27 +336,7 @@ void Paths::UpdateF( field<rowvec>& FX )
 // The Verlet time-stepping algorithm, 'dt' is the time step.
 // See eq 116, Ref 1
 void Paths::takeStepStage()
-{  
-  /*
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      U(iPart,iBead) += P(iPart,iBead)*dt/M(iBead) + 0.5*F(iPart,iBead)*dt*dt/M(iBead);
-      PutInBox( U(iPart,iBead) );
-    }
-  }
-  
-  UtoRStage();
-  UpdateFStage(nF);
-  
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      P(iPart,iBead) += 0.5*(F(iPart,iBead) + nF(iPart,iBead))*dt;
-    }
-  }
-  
-  F = nF;
-  */
-  
+{    
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;

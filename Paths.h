@@ -10,7 +10,7 @@ using namespace arma;
 class Paths
 {
 public:
-  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool stageIn );  // Constructor
+  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn );  // Constructor
   ~Paths(); // Destructor
 
   // Observables Functions
@@ -35,11 +35,14 @@ private:
   double dt; // Time step  
   double L; // Simulation Box Size
   double wp; // Defined frequency
-  double oneOvernBead, oneOvernPartnBead, nDnPartOver2Beta, nDnPartnBeadOver2Beta, mw2, wp2, mwp2, kT; // These are context clear (check Paths constructor)
+  double oneOvernBead, oneOvernPartnBead, nDnPartOver2Beta, nDnPartnBeadOver2Beta, wp2, mwp2, kT; // These are context clear (check Paths constructor)
   
-  double m; // Default (harmonic oscillator units)
-  double hbar; // Default (harmonic oscillator units)
-  double w; // Default (harmonic oscillator units)
+  double m; // Particle Mass, Default 1
+  double hbar; // Plank's Constant/2pi, Default 1
+  double k; // Boltzmann Constant, Default 1
+  
+  double w; // Harmonic Oscillator Frequency
+  double mw2; // m * w^2
   
   // 3D Matrices
   field<rowvec> R; // Positions R
@@ -47,8 +50,8 @@ private:
   field<rowvec> F, nF; // Forces
   
   // System Initialization
-  void InitPosition( field<rowvec>& RX );
-  void InitMomentum( double T );
+  void InitPosition( field<rowvec>& X );
+  void InitMomentum( field<rowvec>& Mom , rowvec& Mass );
   
   // Periodic Boundary Conditions
   void PutInBox( rowvec& Ri );
@@ -70,15 +73,16 @@ private:
   ivec bL; 
 
   // Staging
-  bool stage; // 1 - Use staging, 0 - Don't use staging
+  bool useStage; // 1 - Use staging, 0 - Don't use staging
   field<rowvec> U, nU; // Positions U (staging positions)
   void UtoRStage(); // Switch from U to R
   void UpdateFStage( field<rowvec>& FX ); // Update Force with Staging
   
   // Nose-Hoover Thermostat
   bool useNH; // 1 - Use Nose-Hoover, 0 - Don't use Nose-Hoover
-  field<rowvec> NHR; // Nose-Hoover Positions R
-  field<rowvec> NHP; // Nose-Hoover Momenta P  
+  int nNH; // Length of Nose-Hoover chain
+  field<rowvec> *NHR; // Nose-Hoover Positions R
+  field<rowvec> *NHP; // Nose-Hoover Momenta P  
   rowvec Q; // Nose-Hoover Masses Q
 
 };

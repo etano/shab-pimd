@@ -5,16 +5,25 @@ using namespace std;
 int main (int argc, char* argv[])
 {
   // Inputs
+  cout << "\nSimulation Settings:\n";
   int nPart = atoi(argv[1]); // Number of particles
+  cout << "N: " << nPart << "\n";
   int nD = atoi(argv[2]); // Dimension
+  cout << "D: " << nD << "\n";
   int nBead = atoi(argv[3]); // Number of time slices
+  cout << "P: " << nBead << "\n";
   double beta = atof(argv[4]); // Inverse temperature (kb = 1)
+  cout << "Beta: " << beta << "\n";
   double dt = atof(argv[5]); // Time step of simulation
+  cout << "dt: " << dt << "\n";
   double L = atof(argv[6]); // Simulation box size
-  bool stage = atoi(argv[7]); // Simulation box size
-
-  cout << "\nSimulation Settings:";
-  cout << "\nN: " << nPart << "\nD: " << nD << "\nM: " << nBead << "\nBeta: " << beta << "\nTime Step (s): " << dt << "\nBox Size: " << L << "\nStaging?: " << stage << "\n";
+  cout << "L: " << L << "\n";
+  bool useStage = atoi(argv[7]); // Use Staging
+  cout << "Staging?: " << useStage << "\n";
+  bool useNH = atoi(argv[8]); // Use Nose-Hoover Thermostat
+  cout << "Nose-Hoover?: " << useNH << "\n";
+  int nNH = atoi(argv[9]); // Length of Nose-Hoover Thermostat
+  cout << "Nose-Hoover Length: " << nNH << "\n";
 
   // Random Seed
   srand ( time(NULL) );
@@ -33,7 +42,7 @@ int main (int argc, char* argv[])
   cout << scientific << setprecision(4); 
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L,stage);   
+  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH);   
   
   // Initialize observables;
   double PE, VE, R, R2; 
@@ -62,7 +71,7 @@ int main (int argc, char* argv[])
   for(unsigned int t = 0; t < totSteps; t++) {
     
     // Verlet Step
-    if (stage) path.takeStepStage();
+    if (useStage) path.takeStepStage();
     else path.takeStep();
   
     if(measureScalars && t>eSteps) {
