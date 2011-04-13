@@ -2,7 +2,7 @@
 #include "Paths.h"
 
 // Paths constructor
-Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn )
+Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn , const int nSYIn )
 {
   // Set constants
   nPart = nPartIn; // # of Particles
@@ -14,6 +14,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   useStage = useStageIn; // Use Staging
   useNH = useNHIn; // Use Nose-Hoover Thermostat
   nNH = nNHIn; // Length of Nose-Hoover Thermostat
+  nSY = nSYIn; // Number of Suzuki-Yoshida Weights
   
   m = 1.0; // Particle Mass, Default 1
   hbar = 1.0; // Plank's Constant/2pi, Default 1
@@ -53,105 +54,105 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
     else M(iBead) = m;  
   }
   
-  // Masses (Nose-Hoover) Q
-  // See eq 12.6.14, Ref 2 
-  if (useNH) {
-    Q.set_size(nBead);
-    Q(0) = kT/(w*w);  
-    for (unsigned int iBead = 1; iBead < nBead; iBead += 1)
-      Q(iBead) = kT/wp2;
-  }
-  
   //////////////////////////////
   /* Initialize Vector Fields */
   //////////////////////////////
   
   // Positions R
   R.set_size(nPart,nBead);
-  InitPosition(R);
-  
-  // Positions (Staging) U
-  if (useStage) {  
-    U.set_size(nPart,nBead);
-    InitPosition(U);
-    UtoRStage();
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      R(iPart,iBead).zeros(nD);
+    }
   }
   
-  // Positions (Nose-Hoover) NHR
-  if (useNH) {
-    NHR = new field<rowvec>[nBead];
-    for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
-      NHR[iNH].set_size(nPart,nBead);
-      InitPosition(NHR[iNH]);
+  // Positions (Staging)
+  if (useStage) {  
+    U.set_size(nPart,nBead);   
+    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+      U(iPart,0).zeros(nD);
+      for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
+        U(iPart,iBead).zeros(nD);
+        for (unsigned int iD = 0; iD < nD; iD += 1) {
+          U(iPart,iBead)(iD) = normRand(0.0,1.0/(beta*M(iBead)*wp2)); //Quantum Free-Particle Distribution
+        }
+      }
     }
+    UtoRStage();
   }
   
   // Momenta P
   P.set_size(nPart,nBead);
-  InitMomentum(P, M);
-  
-  // Momenta (Nose-Hoover) NHP
-  if (useNH) {
-    NHP = new field<rowvec>[nBead];
-    for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
-      NHP[iNH].set_size(nPart,nBead);      
-      InitMomentum(NHP[iNH], Q);  
-    }
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    P(iPart,0).zeros(nD);
+    for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
+      P(iPart,iBead).zeros(nD);
+      for (unsigned int iD = 0; iD < nD; iD += 1) {
+        P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
+      }
+    }    
   }
   
   // Forces F
   F.set_size(nPart,nBead);
-  if (useStage) UpdateFStage(F); 
+  if (useStage) UpdateFStage(F);
   else UpdateF(F);
+  
+  //////////////////////////////////
+  /* Initialize Nose-Hoover Chain */
+  //////////////////////////////////  
+    
+  if (useNH) {
+  
+    // Masses (Nose-Hoover)
+    // See eq 12.6.14, Ref 2 
+    NHM.set_size(nNH);
+    NHM(0) = kT/wp2;  
+    for (unsigned int iNH = 1; iNH < nNH; iNH += 1)
+      NHM(iNH) = kT/wp2;
+  
+    // Positions (Nose-Hoover)
+    NHR.set_size(nPart,nBead);
+    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+      for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+        NHR(iPart,iBead).zeros(nNH);
+      }
+    }
+  
+    // Momenta (Nose-Hoover)
+    NHP.set_size(nPart,nBead);
+    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+      for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+        NHP(iPart,iBead).zeros(nNH);
+        for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
+          NHP(iPart,iBead)(iNH) = normRand(0.0,NHM(iNH)*kT); // Maxwell-Boltzmann Distribution
+        }
+      }
+    }
+  
+    // Forces (Nose-Hoover)
+    NHF.set_size(nPart,nBead);
+    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+      for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+        NHF(iPart,iBead).zeros(nNH);
+      }
+    }
+    
+    // Suzuki-Yoshida Scheme Weights (Nose-Hoover) NHd
+    NHd.set_size(nSY);
+    for (unsigned int iSY = 0; iSY < nSY; iSY += 1) {
+      if (iSY==2) NHd(iSY) = 1.0 - 4.0/(4.0 - pow(4.0,1.0/3.0));
+      else NHd(iSY) = 1.0/(4.0 - pow(4.0,1.0/3.0));
+      NHd(iSY) *= dt;
+    }
+    
+  }
 
 }
 
 // Paths destructor
 Paths::~Paths()
 {
-}
-
-//////////////////////
-/* Intialize System */
-//////////////////////
-
-// Initialize Positions
-void Paths::InitPosition( field<rowvec>& X )
-{  
-  for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-      X(iPart,iBead).zeros(nD);
-    }
-  }
-}
-
-// Initialize Momentum
-void Paths::InitMomentum( field<rowvec>& Mom , rowvec& Mass )
-{
-  rowvec newP(nD), netP(nD), avgP(nD);
-  double netE, pScale;
-    
-  netP.zeros();
-  netE = 0.0;
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {  
-      for (unsigned int iD = 0; iD < nD; iD += 1) {
-        newP(iD) = unifRand() - 0.5;
-      }
-      netP += newP;
-      netE += dot(newP,newP);
-      Mom(iPart,iBead) = newP;
-    }
-  }
-
-  avgP = netP/(1.0*nPart*nBead);
-  if (nPart < 2) avgP.zeros();
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      pScale = sqrt(Mass(iBead)*nD*nPart*nBead/(beta*netE));
-      Mom(iPart,iBead) = (Mom(iPart,iBead) - avgP)*pScale;      
-    }
-  }
 }
 
 ////////////////////////////////////////////////////
@@ -288,20 +289,27 @@ rowvec Paths::getgradV( const int iPart, const int iBead )
 // The Verlet time-stepping algorithm, 'dt' is the time step.
 void Paths::takeStep()
 {      
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;
-    }
-  }
+		
+  if (useNH) NHThermostat();
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;
       R(iPart,iBead) += P(iPart,iBead)*dt/M(iBead);
       PutInBox( R(iPart,iBead) );
     }
   }
     
-  UpdateF(F);  
+  UpdateF(F); 
+  
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;
+    }
+  }  
+  
+  if (useNH) NHThermostat();
+  
 }
 
 // Update the Force for every bead of every particle
@@ -337,14 +345,11 @@ void Paths::UpdateF( field<rowvec>& FX )
 // See eq 116, Ref 1
 void Paths::takeStepStage()
 {    
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;
-    }
-  }
+  if (useNH) NHThermostat();
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;
       U(iPart,iBead) += P(iPart,iBead)*dt/M(iBead);
       PutInBox( U(iPart,iBead) );
     }
@@ -352,6 +357,15 @@ void Paths::takeStepStage()
   
   UtoRStage();
   UpdateFStage(F);
+  
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      P(iPart,iBead) += 0.5*F(iPart,iBead)*dt;
+    }
+  }
+  
+  if (useNH) NHThermostat();
+  
 }
 
 // Assign actual positions, going from ui's to xi's
@@ -389,5 +403,62 @@ void Paths::UpdateFStage( field<rowvec>& FX )
     }    
     
   }
+}
+
+////////////////////////////
+/* Nose-Hoover Thermostat */
+////////////////////////////
+
+void Paths::NHThermostat()
+{ 
+		
+  // See eqs 12.6.14 & 4.11.17, Ref 2
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {      
+      for (unsigned int iSY = 0; iSY < nSY; iSY += 1) {
+      
+        NHF(iPart,iBead)(nNH-1) = NHP(iPart,iBead)(nNH-2) * NHP(iPart,iBead)(nNH-2) / NHM(nNH-2) - kT;
+        NHP(iPart,iBead)(nNH-1) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(nNH-1);
+        
+        for (unsigned int iNH = nNH-2; iNH > 0; iNH -= 1) {
+          NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
+          NHF(iPart,iBead)(iNH) = NHP(iPart,iBead)(iNH-1) * NHP(iPart,iBead)(iNH-1) / NHM(iNH-1) - kT;
+          NHP(iPart,iBead)(iNH) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(iNH);
+          NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
+        }
+        
+        NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
+        NHF(iPart,iBead)(0) = dot( P(iPart,iBead) , P(iPart,iBead) ) / M(iBead) - nD * kT;
+        NHP(iPart,iBead)(0) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(0);
+        NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
+        
+        for (unsigned int iD = 0; iD < nD; iD += 1) {
+          P(iPart,iBead)(iD) *= exp(-0.5 * NHd(iSY) * NHP(iPart,iBead)(0) / NHM(0));  
+        }
+        
+        // Don't really need this! Would only want it if checking conserved quantity.
+        //for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
+        //  NHR(iPart,iBead)(iNH) += -0.5 * NHd(iSY) * NHP(iPart,iBead)(iNH) / NHM(iNH);
+        //}
+        
+        NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
+        NHF(iPart,iBead)(0) = dot( P(iPart,iBead) , P(iPart,iBead) ) / M(iBead) - nD * kT;
+        NHP(iPart,iBead)(0) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(0);
+        NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
+        
+        for (unsigned int iNH = 1; iNH < nNH-1; iNH += 1) {
+          NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
+          NHF(iPart,iBead)(iNH) = NHP(iPart,iBead)(iNH-1) * NHP(iPart,iBead)(iNH-1) / NHM(iNH-1) - kT;
+          NHP(iPart,iBead)(iNH) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(iNH);
+          NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
+        }
+        
+        NHF(iPart,iBead)(nNH-1) = NHP(iPart,iBead)(nNH-2) * NHP(iPart,iBead)(nNH-2) / NHM(nNH-2) - kT;
+        NHP(iPart,iBead)(nNH-1) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(nNH-1);
+        
+      }      		    
+    }  
+  }
+  
 }
 

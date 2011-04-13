@@ -24,6 +24,8 @@ int main (int argc, char* argv[])
   cout << "Nose-Hoover?: " << useNH << "\n";
   int nNH = atoi(argv[9]); // Length of Nose-Hoover Thermostat
   cout << "Nose-Hoover Length: " << nNH << "\n";
+  int nSY = atoi(argv[10]); // Number of Suzuki-Yoshida weights
+  cout << "Number of Suzuki-Yoshida weights: " << nSY << "\n";
 
   // Random Seed
   srand ( time(NULL) );
@@ -33,16 +35,16 @@ int main (int argc, char* argv[])
 
   // Output files
   fstream scalarTrace;   
-  char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%g-%g.dat";
+  char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%g-%g-%g-%d-%d-%d-%d.dat";
   char scalarFile[sizeof scalarFormat+100];
-  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt);  
+  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,nSY);  
   scalarTrace.open (scalarFile, ios::out | ios::trunc);
   
   // COUT FORMATTING
   cout << scientific << setprecision(4); 
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH);   
+  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,nSY);   
   
   // Initialize observables;
   double PE, VE, R, R2; 
@@ -61,7 +63,7 @@ int main (int argc, char* argv[])
   R2 = 0.0;
   
   // Main Simulation Loop
-  int eSteps = 1;
+  int eSteps = 10000;
   int rSteps = 100000;
   int totSteps = eSteps + rSteps;
   int block = 1;
@@ -74,7 +76,7 @@ int main (int argc, char* argv[])
     if (useStage) path.takeStepStage();
     else path.takeStep();
   
-    if(measureScalars && t>eSteps) {
+    if(measureScalars && t>=eSteps) {
     
       // Compute Scalars
       PE += path.getPE();
@@ -86,7 +88,7 @@ int main (int argc, char* argv[])
       if ((t%block)==0) {  
          
         // Output Scalars
-        scalarTrace << t/block << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << "\n";  
+        scalarTrace << t/block << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << "\n"; 
            
         // Reset Scalars
         PE = 0.0;

@@ -10,7 +10,7 @@ using namespace arma;
 class Paths
 {
 public:
-  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn );  // Constructor
+  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn , const int nSYIn );  // Constructor
   ~Paths(); // Destructor
 
   // Observables Functions
@@ -48,11 +48,7 @@ private:
   field<rowvec> R; // Positions R
   field<rowvec> P; // Momenta
   field<rowvec> F, nF; // Forces
-  
-  // System Initialization
-  void InitPosition( field<rowvec>& X );
-  void InitMomentum( field<rowvec>& Mom , rowvec& Mass );
-  
+    
   // Periodic Boundary Conditions
   void PutInBox( rowvec& Ri );
   double Distance( rowvec& Ri , rowvec& Rj );
@@ -74,16 +70,20 @@ private:
 
   // Staging
   bool useStage; // 1 - Use staging, 0 - Don't use staging
-  field<rowvec> U, nU; // Positions U (staging positions)
+  field<rowvec> U, nU; // Positions (Staging)
   void UtoRStage(); // Switch from U to R
   void UpdateFStage( field<rowvec>& FX ); // Update Force with Staging
   
   // Nose-Hoover Thermostat
   bool useNH; // 1 - Use Nose-Hoover, 0 - Don't use Nose-Hoover
   int nNH; // Length of Nose-Hoover chain
-  field<rowvec> *NHR; // Nose-Hoover Positions R
-  field<rowvec> *NHP; // Nose-Hoover Momenta P  
-  rowvec Q; // Nose-Hoover Masses Q
+  field<rowvec> NHR; // Positions (Nose-Hoover)
+  field<rowvec> NHP; // Momenta (Nose-Hoover)
+  field<rowvec> NHF; // Forces (Nose-Hoover)
+  rowvec NHM; // Masses (Nose-Hoover)
+  int nSY; // Number of Suzuki-Yoshida weights
+  rowvec NHd; // Suzuki-Yoshia Weight Factors 
+  void NHThermostat(); // Thermostatting function
 
 };
 

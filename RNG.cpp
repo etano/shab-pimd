@@ -32,5 +32,14 @@ long unifRand(long n)
 // with mean m and standard deviation s
 double normRand(double m, double s)
 {				        
-  return sto.Normal(m,s);
+  //return sto.Normal(m,s*s);
+  
+  	//Box-Mueller Sampling from a normal distribution	
+	double xi1 = unifRand(); //uniform on (0,1)
+	double xi2 = unifRand(); //uniform on (0,1)
+	
+	double R = sqrt(-s*2*log(xi2));
+	double THETA = xi1*2*3.14159265358979323846264338327950288;
+	
+	return R*cos(THETA);
 }
