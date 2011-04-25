@@ -1,2 +1,2 @@
 #!/bin/sh
-nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $10 $11 $12 $13 > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$10-$11-$12-$13.out
+nohup ./shab-pimd $1 > data/output/$1.out

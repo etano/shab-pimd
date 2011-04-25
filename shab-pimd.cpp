@@ -4,35 +4,62 @@ using namespace std;
 
 int main (int argc, char* argv[])
 {
+  // Input File
+  char* inputFile = argv[1];
+  cout << "\nReading input from " << inputFile << ".\n";
+  ifstream inputStream;
+  inputStream.open(inputFile);
+  if (!inputStream) {
+    cout << "There was a problem opening the input file " << inputFile << " for reading.\n";
+  }
+
   // Inputs
-  cout << "\nSimulation Settings:\n";
-  int nPart = atoi(argv[1]); // Number of particles
+  int nPart; // Number of particles
+  int nD; // Dimension
+  int nBead; // Number of time slices
+  double beta; // Inverse temperature (kb = 1)
+  double dt; // Time step of simulation
+  double L; // Simulation box size
+  double eSteps; // Number of Equilibration Sweeps
+  double rSteps; // Number of Recording Sweeps
+  bool useStage; // Use Staging
+  bool useNH; // Use Nose-Hoover Thermostat
+  int nNH; // Length of Nose-Hoover Thermostat
+  int SYOrder; // Order of Suzuki-Yoshida Factorization
+  int nNHsteps; // Number of Nose-Hoover Steps
+
+  int nLineSkip;
+  if(argv[2] == NULL) nLineSkip = 1;
+  else nLineSkip = atoi(argv[2]);
+  for (unsigned int iLine = 0; iLine < nLineSkip; iLine += 1) {
+    inputStream >> nPart;
+    inputStream >> nD;
+    inputStream >> nBead;
+    inputStream >> beta;
+    inputStream >> dt;
+    inputStream >> L;
+    inputStream >> eSteps;
+    inputStream >> rSteps;
+    inputStream >> useStage;
+    inputStream >> useNH;
+    inputStream >> nNH;
+    inputStream >> SYOrder;
+    inputStream >> nNHsteps;    
+  }
+  inputStream.close();
+
   cout << "Number of Particles: " << nPart << "\n";
-  int nD = atoi(argv[2]); // Dimension
   cout << "Dimension: " << nD << "\n";
-  int nBead = atoi(argv[3]); // Number of time slices
   cout << "Number of Time Slices: " << nBead << "\n";
-  double beta = atof(argv[4]); // Inverse temperature (kb = 1)
   cout << "Inverse temperature (beta): " << beta << "\n";
-  double dt = atof(argv[5]); // Time step of simulation
   cout << "Simulation Time Step: " << dt << "\n";
-  double L = atof(argv[6]); // Simulation box size
   cout << "Simulation Box Size: " << L << "\n";
-  double eSteps = atoi(argv[7]); // Number of Equilibration Sweeps
   cout << "Number of Equilibration Sweeps: " << eSteps << "\n";
-  double rSteps = atoi(argv[8]); // Number of Recording Sweeps
   cout << "Number of Recording Sweeps: " << rSteps << "\n";
-
-  bool useStage = atoi(argv[9]); // Use Staging
   cout << "Staging?: " << useStage << "\n";
-
-  bool useNH = atoi(argv[10]); // Use Nose-Hoover Thermostat
   cout << "Nose-Hoover?: " << useNH << "\n";
-  int nNH = atoi(argv[11]); // Length of Nose-Hoover Thermostat
   cout << "Nose-Hoover Length: " << nNH << "\n";
-  int SYOrder = atoi(argv[12]); // Order of Suzuki-Yoshida Factorization
   cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
-  int nNHsteps = atoi(argv[13]); // Number of Nose-Hoover Steps
   cout << "Number of Nose-Hoover Steps: " << nNHsteps << "\n";
 
   // Random Seed
