@@ -7,25 +7,33 @@ int main (int argc, char* argv[])
   // Inputs
   cout << "\nSimulation Settings:\n";
   int nPart = atoi(argv[1]); // Number of particles
-  cout << "N: " << nPart << "\n";
+  cout << "Number of Particles: " << nPart << "\n";
   int nD = atoi(argv[2]); // Dimension
-  cout << "D: " << nD << "\n";
+  cout << "Dimension: " << nD << "\n";
   int nBead = atoi(argv[3]); // Number of time slices
-  cout << "P: " << nBead << "\n";
+  cout << "Number of Time Slices: " << nBead << "\n";
   double beta = atof(argv[4]); // Inverse temperature (kb = 1)
-  cout << "Beta: " << beta << "\n";
+  cout << "Inverse temperature (beta): " << beta << "\n";
   double dt = atof(argv[5]); // Time step of simulation
-  cout << "dt: " << dt << "\n";
+  cout << "Simulation Time Step: " << dt << "\n";
   double L = atof(argv[6]); // Simulation box size
-  cout << "L: " << L << "\n";
-  bool useStage = atoi(argv[7]); // Use Staging
+  cout << "Simulation Box Size: " << L << "\n";
+  double eSteps = atoi(argv[7]); // Number of Equilibration Sweeps
+  cout << "Number of Equilibration Sweeps: " << eSteps << "\n";
+  double rSteps = atoi(argv[8]); // Number of Recording Sweeps
+  cout << "Number of Recording Sweeps: " << rSteps << "\n";
+
+  bool useStage = atoi(argv[9]); // Use Staging
   cout << "Staging?: " << useStage << "\n";
-  bool useNH = atoi(argv[8]); // Use Nose-Hoover Thermostat
+
+  bool useNH = atoi(argv[10]); // Use Nose-Hoover Thermostat
   cout << "Nose-Hoover?: " << useNH << "\n";
-  int nNH = atoi(argv[9]); // Length of Nose-Hoover Thermostat
+  int nNH = atoi(argv[11]); // Length of Nose-Hoover Thermostat
   cout << "Nose-Hoover Length: " << nNH << "\n";
-  int nSY = atoi(argv[10]); // Number of Suzuki-Yoshida weights
-  cout << "Number of Suzuki-Yoshida weights: " << nSY << "\n";
+  int SYOrder = atoi(argv[12]); // Order of Suzuki-Yoshida Factorization
+  cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
+  int nNHsteps = atoi(argv[13]); // Number of Nose-Hoover Steps
+  cout << "Number of Nose-Hoover Steps: " << nNHsteps << "\n";
 
   // Random Seed
   srand ( time(NULL) );
@@ -37,14 +45,14 @@ int main (int argc, char* argv[])
   fstream scalarTrace;   
   char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%g-%g-%g-%d-%d-%d-%d.dat";
   char scalarFile[sizeof scalarFormat+100];
-  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,nSY);  
+  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,useStage,useNH,nNH,SYOrder,nNHsteps);  
   scalarTrace.open (scalarFile, ios::out | ios::trunc);
   
   // COUT FORMATTING
-  cout << scientific << setprecision(4); 
+  cout << scientific << setprecision(4);
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,nSY);   
+  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,SYOrder,nNHsteps);   
   
   // Initialize observables;
   double PE, VE, R, R2; 
@@ -63,8 +71,6 @@ int main (int argc, char* argv[])
   R2 = 0.0;
   
   // Main Simulation Loop
-  int eSteps = 10000;
-  int rSteps = 100000;
   int totSteps = eSteps + rSteps;
   int block = 1;
   int nBlock = 0;

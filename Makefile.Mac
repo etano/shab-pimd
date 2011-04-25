@@ -3,8 +3,12 @@ CFLAGS = -c -I /opt/local/include -O1 -msse2
 LDFLAGS = -I /opt/local/include -O1 -msse2
 LIBFLAGS = -larmadillo -framework Accelerate
 SOURCES = shab-pimd.cpp
-SOURCES += Paths.cpp
+SOURCES += PathsClass.cpp
+SOURCES += Observables.cpp
 SOURCES += RNG.cpp
+SOURCES += Stats.cpp
+SOURCES += Staging.cpp
+SOURCES += NoseHoover.cpp
 SOURCES += rng/sfmt.cpp 
 SOURCES += rng/mersenne.cpp 
 SOURCES += rng/userintf.cpp
@@ -21,7 +25,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 	
 clean:
-	rm -rf *.o $(EXECUTABLE)
+	rm -rf ./rng/*.o *.o $(EXECUTABLE)
 	
 realclean:
 	rm -rf ./rng/*.o *.o $(EXECUTABLE)
