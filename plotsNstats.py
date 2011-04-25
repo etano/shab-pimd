@@ -11,6 +11,7 @@ inputFile = open(inputFileName,'r')
 
 for line in inputFile: 
   inputLine = str(line)
+  if inputLine != ''
   fileExtension = inputLine.replace(' ','-')
   fileExtension = fileExtension.replace('\n','')
   filePath = "data/traces/scalarTrace-" + fileExtension + ".dat"    
