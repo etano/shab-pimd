@@ -20,8 +20,8 @@ int main (int argc, char* argv[])
   double beta; // Inverse temperature (kb = 1)
   double dt; // Time step of simulation
   double L; // Simulation box size
-  double eSteps; // Number of Equilibration Sweeps
-  double rSteps; // Number of Recording Sweeps
+  int eSteps; // Number of Equilibration Sweeps
+  int rSteps; // Number of Recording Sweeps
   bool useStage; // Use Staging
   bool useNH; // Use Nose-Hoover Thermostat
   int nNH; // Length of Nose-Hoover Thermostat
@@ -70,9 +70,10 @@ int main (int argc, char* argv[])
 
   // Output files
   fstream scalarTrace;   
-  char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%g-%g-%g-%d-%d-%d-%d.dat";
-  char scalarFile[sizeof scalarFormat+100];
-  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,useStage,useNH,nNH,SYOrder,nNHsteps);  
+  char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
+  char scalarFile[sizeof scalarFormat];
+  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,useStage,useNH,nNH,SYOrder,nNHsteps); 
+  cout << "\nOutputting data to " << scalarFile << ".\n";
   scalarTrace.open (scalarFile, ios::out | ios::trunc);
   
   // COUT FORMATTING
@@ -141,8 +142,8 @@ int main (int argc, char* argv[])
   scalarTrace.close();
   
   // Compute and Output stats
-  if(measureScalars) statsScalars(scalarFile,nBlock);
-
+  if(measureScalars) statsScalars(scalarFile,nBlock); 
+  
   cout << "\nDone.\n\n"; 
   
   return 0;
