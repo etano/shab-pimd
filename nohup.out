@@ -1,0 +1,238 @@
+run.sh: line 2: data/output/1-1-64-2.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-1.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-4.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-3.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-5.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-6.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-7.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-8.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-9.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-10.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-1.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-2.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-3.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-4.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-5.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-6.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-8.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-7.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-9.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-10.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-1.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-2.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-3.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-4.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-5.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-6.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-7.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-8.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-9.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-64-10.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-1.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-2.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-3.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-4.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-5.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-6.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-7.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-8.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-9.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-32-10.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-1.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-2.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-3.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-4.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-5.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-6.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-7.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-8.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-9.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-16-10.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-1.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-2.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-3.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-4.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-5.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-6.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-7.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-8.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-9.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: data/output/1-1-8-10.0-0.01-1.0-1-100000-1-10-11-12-13.out: No such file or directory
+run.sh: line 2: 32757 Segmentation fault      nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2: 32756 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2: 32752 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2: 32754 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2: 32755 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2: 32766 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   302 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   301 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   304 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   306 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   313 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   317 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   316 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   319 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   321 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   328 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   331 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   332 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   334 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   336 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   342 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   347 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   349 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   348 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   350 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   357 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   362 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   363 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   364 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   365 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   372 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   380 Segmentation fault      nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   377 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   378 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   379 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   387 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   393 Segmentation fault      nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   391 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   392 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   394 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   400 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   405 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   406 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   407 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   409 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   417 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   434 Segmentation fault      nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   423 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   422 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   424 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   440 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   448 Segmentation fault      nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   445 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   447 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   446 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   455 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   458 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   459 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2:   460 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+run.sh: line 2: 32753 Segmentation fault      (core dumped) nohup ./shab-pimd $1 $2 $3 $4 $5 $6 $7 $8 $9 $A $B $C $D > data/output/$1-$2-$3-$4-$5-$6-$7-$8-$9-$A-$B-$C-$D.out
+batchRun.sh: line 4: 1: command not found
+batchRun.sh: line 4: 2: command not found
+batchRun.sh: line 4: 3: command not found
+batchRun.sh: line 4: 4: command not found
+run.sh: line 2:   667 Terminated              nohup ./shab-pimd $1 > data/output/$1.out
+batchRun.sh: line 4: 5: command not found
+batchRun.sh: line 4: 6: command not found
+batchRun.sh: line 4: 7: command not found
+batchRun.sh: line 4: 8: command not found
+batchRun.sh: line 4: 9: command not found
+batchRun.sh: line 4: 10: command not found
+batchRun.sh: line 4: 11: command not found
+batchRun.sh: line 4: 12: command not found
+batchRun.sh: line 4: 13: command not found
+batchRun.sh: line 4: 14: command not found
+batchRun.sh: line 4: 15: command not found
+batchRun.sh: line 4: 16: command not found
+batchRun.sh: line 4: 17: command not found
+batchRun.sh: line 4: 18: command not found
+batchRun.sh: line 4: 19: command not found
+batchRun.sh: line 4: 20: command not found
+batchRun.sh: line 4: 21: command not found
+batchRun.sh: line 4: 22: command not found
+batchRun.sh: line 4: 23: command not found
+batchRun.sh: line 4: 24: command not found
+batchRun.sh: line 4: 25: command not found
+batchRun.sh: line 4: 26: command not found
+batchRun.sh: line 4: 27: command not found
+batchRun.sh: line 4: 28: command not found
+batchRun.sh: line 4: 29: command not found
+batchRun.sh: line 4: 30: command not found
+batchRun.sh: line 4: 31: command not found
+batchRun.sh: line 4: 32: command not found
+batchRun.sh: line 4: 33: command not found
+batchRun.sh: line 4: 34: command not found
+batchRun.sh: line 4: 35: command not found
+batchRun.sh: line 4: 36: command not found
+batchRun.sh: line 4: 37: command not found
+batchRun.sh: line 4: 38: command not found
+batchRun.sh: line 4: 39: command not found
+batchRun.sh: line 4: 40: command not found
+batchRun.sh: line 4: 41: command not found
+batchRun.sh: line 4: 42: command not found
+batchRun.sh: line 4: 43: command not found
+batchRun.sh: line 4: 44: command not found
+batchRun.sh: line 4: 45: command not found
+batchRun.sh: line 4: 46: command not found
+batchRun.sh: line 4: 47: command not found
+batchRun.sh: line 4: 48: command not found
+batchRun.sh: line 4: 49: command not found
+batchRun.sh: line 4: 50: command not found
+run.sh: line 2:   891 Killed                  nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   923 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   926 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   929 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   932 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   935 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   938 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   941 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   944 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   947 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   950 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   953 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   956 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   959 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   980 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   983 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   986 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   989 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   992 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   995 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+run.sh: line 2:   892 Killed                  nohup ./shab-pimd $1 > data/output/$1.out
+run.sh: line 2:   893 Killed                  nohup ./shab-pimd $1 > data/output/$1.out
+run.sh: line 2:   894 Killed                  nohup ./shab-pimd $1 > data/output/$1.out
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  
+run.sh: line 2:   895 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
+run.sh: line 2:   896 Aborted                 (core dumped) nohup ./shab-pimd $1 > data/output/$1.out
