@@ -55,16 +55,17 @@ def getAndOutputStats(myArray, myArrayHeadings):
   
   returnVal = []
   for i in range(1, len(col)):
+    returnVal.append([])
     print "\n", myArrayHeadings[i], ":"
     (myMean,myStdDev,myKappa,myStdErr) = stats(col[i])  
     print 'Mean     = %8.5f' % (myMean) 
     print 'Standard Deviation     = %8.5f' % (myStdDev) 
     print 'Kappa     = %8.5f' % (myKappa) 
     print 'Standard Error    = %8.5f' % (myStdErr)
-    returnVal.append(myMean)
-    returnVal.append(myStdDev)
-    returnVal.append(myKappa)
-    returnVal.append(myStdErr)
+    returnVal[i-1].append(myMean)
+    returnVal[i-1].append(myStdDev)
+    returnVal[i-1].append(myKappa)
+    returnVal[i-1].append(myStdErr)
     
   return returnVal
     
