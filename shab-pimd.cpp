@@ -6,12 +6,16 @@ int main (int argc, char* argv[])
 {
   // Input File
   char* inputFile = argv[1];
-  cout << "\nReading input from " << inputFile << ".\n";
   ifstream inputStream;
   inputStream.open(inputFile);
-  if (!inputStream) {
-    cout << "There was a problem opening the input file " << inputFile << " for reading.\n";
-  }
+  if (!inputStream) cout << "There was a problem opening the input file " << inputFile << " for reading.\n";
+  string inputFileLabel;
+  getline(inputStream, inputFileLabel);
+  int nLineSkip;
+  if(argv[2] == NULL) nLineSkip = 1;
+  else nLineSkip = atoi(argv[2]);
+
+  cout << "\nRunning simulation " << nLineSkip << " from " << inputFile << " ( " << inputFileLabel << " ) ...\n\n";
 
   // Inputs
   int nPart; // Number of particles
@@ -28,9 +32,6 @@ int main (int argc, char* argv[])
   int SYOrder; // Order of Suzuki-Yoshida Factorization
   int nNHsteps; // Number of Nose-Hoover Steps
 
-  int nLineSkip;
-  if(argv[2] == NULL) nLineSkip = 1;
-  else nLineSkip = atoi(argv[2]);
   for (unsigned int iLine = 0; iLine < nLineSkip; iLine += 1) {
     inputStream >> nPart;
     inputStream >> nD;
@@ -62,12 +63,6 @@ int main (int argc, char* argv[])
   cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
   cout << "Number of Nose-Hoover Steps: " << nNHsteps << "\n";
 
-  // Random Seed
-  srand ( time(NULL) );
-  
-  // Measurements
-  bool measureScalars = 1;
-
   // Output files
   fstream scalarTrace;   
   char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
@@ -80,8 +75,11 @@ int main (int argc, char* argv[])
   cout << scientific << setprecision(4);
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,SYOrder,nNHsteps);   
+  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,SYOrder,nNHsteps);     
   
+  // Measurements
+  bool measureScalars = 1;
+
   // Initialize observables;
   double PE, VE, R, R2; 
   PE = path.getPE();
