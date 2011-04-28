@@ -1,7 +1,7 @@
 #include "PathsClass.h"
 
 // Paths constructor
-Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn )
+Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn, const bool useNormalIn , const bool useNHIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn )
 {
   // Set constants
   nPart = nPartIn; // # of Particles
@@ -12,6 +12,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   L = LIn; // Size of Simulation Box
 
   useStage = useStageIn; // Use Staging
+  useNormal = useNormalIn; // Use Normal Mode
 
   useNH = useNHIn; // Use Nose-Hoover Thermostat
   nNH = nNHIn; // Length of Nose-Hoover Thermostat
@@ -53,6 +54,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   M(0) = m;
   for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {  
     if (useStage) M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m;
+    else if (useNormal) M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m;
     else M(iBead) = m;  
   }
   
@@ -84,11 +86,12 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
     }    
   }
     
-  ////////////////////////
-  /* Initialize Staging */
-  //////////////////////// 
+  ///////////////////////////////
+  /* Initialize Transformation */
+  /////////////////////////////// 
 
   if (useStage) initStaging();
+  if (useNormal) initNormalMode();
   
   //////////////////////////////////
   /* Initialize Nose-Hoover Chain */

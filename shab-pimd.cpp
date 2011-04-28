@@ -27,6 +27,7 @@ int main (int argc, char* argv[])
   int eSteps; // Number of Equilibration Sweeps
   int rSteps; // Number of Recording Sweeps
   bool useStage; // Use Staging
+  bool useNormal; // Use Normal Mode
   bool useNH; // Use Nose-Hoover Thermostat
   int nNH; // Length of Nose-Hoover Thermostat
   int SYOrder; // Order of Suzuki-Yoshida Factorization
@@ -42,6 +43,7 @@ int main (int argc, char* argv[])
     inputStream >> eSteps;
     inputStream >> rSteps;
     inputStream >> useStage;
+    inputStream >> useNormal;
     inputStream >> useNH;
     inputStream >> nNH;
     inputStream >> SYOrder;
@@ -58,6 +60,7 @@ int main (int argc, char* argv[])
   cout << "Number of Equilibration Sweeps: " << eSteps << "\n";
   cout << "Number of Recording Sweeps: " << rSteps << "\n";
   cout << "Staging?: " << useStage << "\n";
+  cout << "Normal Mode?: " << useNormal << "\n";
   cout << "Nose-Hoover?: " << useNH << "\n";
   cout << "Nose-Hoover Length: " << nNH << "\n";
   cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
@@ -67,7 +70,7 @@ int main (int argc, char* argv[])
   fstream scalarTrace;   
   char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
   char scalarFile[sizeof scalarFormat];
-  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,useStage,useNH,nNH,SYOrder,nNHsteps); 
+  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,useStage,useNormal,useNH,nNH,SYOrder,nNHsteps); 
   cout << "\nOutputting data to " << scalarFile << ".\n";
   scalarTrace.open (scalarFile, ios::out | ios::trunc);
   
@@ -75,7 +78,7 @@ int main (int argc, char* argv[])
   cout << scientific << setprecision(4);
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNH,nNH,SYOrder,nNHsteps);     
+  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNormal,useNH,nNH,SYOrder,nNHsteps);     
   
   // Measurements
   bool measureScalars = 1;
@@ -106,6 +109,7 @@ int main (int argc, char* argv[])
     
     // Verlet Step
     if (useStage) path.takeStepStage();
+    else if (useNormal) path.takeStepNormal();
     else path.takeStep();
   
     if(measureScalars && t>=eSteps) {

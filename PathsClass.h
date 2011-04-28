@@ -10,7 +10,7 @@ using namespace arma;
 class Paths
 {
 public:
-  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNHIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn );  // Constructor
+  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNormalIn , const bool useNHIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn );  // Constructor
   ~Paths(); // Destructor
 
   // Observables Functions
@@ -22,6 +22,7 @@ public:
   // Molecular Dynamics Functions
   void takeStep(); // Take a step
   void takeStepStage(); // Take a step (using staging)
+  void takeStepNormal(); // Take a step (using normal mode)
   
 protected:
   //protected things
@@ -74,6 +75,13 @@ private:
   void initStaging(); // Initiate Staging
   void UtoRStage(); // Switch from U to R
   void UpdateFStage( field<rowvec>& FX ); // Update Force with Staging
+  
+  // Normal Mode
+  bool useNormal; // 1 - Use normal mode, 0 - Don't use normal mode
+  field<rowvec> W, nW; // Positions (Normal Mode)
+  void initNormalMode(); // Initiate Normal Mode
+  void WtoRNormal(); // Switch from W to R
+  void UpdateFNormal( field<rowvec>& FX ); // Update Force with Normal Mode
   
   // Nose-Hoover Thermostat
   bool useNH; // 1 - Use Nose-Hoover, 0 - Don't use Nose-Hoover
