@@ -8,6 +8,7 @@ SOURCES += Observables.cpp
 SOURCES += RNG.cpp
 SOURCES += Stats.cpp
 SOURCES += Staging.cpp
+SOURCES += NormalMode.cpp
 SOURCES += NoseHoover.cpp
 SOURCES += rng/sfmt.cpp 
 SOURCES += rng/mersenne.cpp 
@@ -25,7 +26,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 	
 clean:
-	rm -rf ./rng/*.o *.o $(EXECUTABLE)
+	rm -rf *.o $(EXECUTABLE)
 	
 realclean:
 	rm -rf ./rng/*.o *.o $(EXECUTABLE)
