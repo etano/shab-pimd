@@ -10,7 +10,7 @@ int main (int argc, char* argv[])
   inputStream.open(inputFile);
   if (!inputStream) cout << "There was a problem opening the input file " << inputFile << " for reading.\n";
   string inputFileLabel;
-  getline(inputStream, inputFileLabel);
+  getline(inputStream, inputFileLabel); // Skip first line, get label
   int nLineSkip;
   if(argv[2] == NULL) nLineSkip = 1;
   else nLineSkip = atoi(argv[2]);
@@ -26,8 +26,7 @@ int main (int argc, char* argv[])
   double L; // Simulation box size
   int eSteps; // Number of Equilibration Sweeps
   int rSteps; // Number of Recording Sweeps
-  bool useStage; // Use Staging
-  bool useNormal; // Use Normal Mode
+  int varTransform; // Variable Transformation: 0 - None, 1 - Staging, 2 - Normal Mode
   bool useNH; // Use Nose-Hoover Thermostat
   int nNH; // Length of Nose-Hoover Thermostat
   int SYOrder; // Order of Suzuki-Yoshida Factorization
@@ -42,14 +41,24 @@ int main (int argc, char* argv[])
     inputStream >> L;
     inputStream >> eSteps;
     inputStream >> rSteps;
-    inputStream >> useStage;
-    inputStream >> useNormal;
+    inputStream >> varTransform;
     inputStream >> useNH;
     inputStream >> nNH;
     inputStream >> SYOrder;
     inputStream >> nNHsteps;    
   }
   inputStream.close();
+
+  bool useStage; // Use Staging
+  bool useNormal; // Use Normal Mode
+
+  if (varTransform==1) {
+    useStage = 1;
+    useNormal = 0;
+  } else if (varTransform==2) {
+    useNormal = 1;
+    useNormal = 0;
+  }
 
   cout << "Number of Particles: " << nPart << "\n";
   cout << "Dimension: " << nD << "\n";
@@ -70,7 +79,7 @@ int main (int argc, char* argv[])
   fstream scalarTrace;   
   char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
   char scalarFile[sizeof scalarFormat];
-  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,useStage,useNormal,useNH,nNH,SYOrder,nNHsteps); 
+  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,varTransform,useNH,nNH,SYOrder,nNHsteps); 
   cout << "\nOutputting data to " << scalarFile << ".\n";
   scalarTrace.open (scalarFile, ios::out | ios::trunc);
   

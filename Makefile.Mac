@@ -27,6 +27,3 @@ $(EXECUTABLE): $(OBJECTS)
 	
 clean:
 	rm -rf ./rng/*.o *.o $(EXECUTABLE)
-	
-realclean:
-	rm -rf ./rng/*.o *.o $(EXECUTABLE)
