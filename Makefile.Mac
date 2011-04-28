@@ -8,6 +8,7 @@ SOURCES += Observables.cpp
 SOURCES += RNG.cpp
 SOURCES += Stats.cpp
 SOURCES += Staging.cpp
+SOURCES += NormalMode.cpp
 SOURCES += NoseHoover.cpp
 SOURCES += rng/sfmt.cpp 
 SOURCES += rng/mersenne.cpp 
