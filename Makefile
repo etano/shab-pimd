@@ -26,7 +26,4 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 	
 clean:
-	rm -rf *.o $(EXECUTABLE)
-	
-realclean:
 	rm -rf ./rng/*.o *.o $(EXECUTABLE)
