@@ -3,6 +3,11 @@
 // Initiate Vector Fields
 void Paths::initStaging()
 {
+  // Masses
+  for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {  
+    M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m;
+  }
+
   // Positions
   U.set_size(nPart,nBead);   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {

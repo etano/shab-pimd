@@ -78,6 +78,7 @@ private:
   
   // Normal Mode
   bool useNormal; // 1 - Use normal mode, 0 - Don't use normal mode
+  mat NormO; // Orthgonal Transformation Matrix
   field<rowvec> W, nW; // Positions (Normal Mode)
   void initNormalMode(); // Initiate Normal Mode
   void WtoRNormal(); // Switch from W to R
