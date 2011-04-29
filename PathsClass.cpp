@@ -53,9 +53,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   M.set_size(nBead);  
   M(0) = m;
   for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {  
-    if (useStage) M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m;
-    else if (useNormal) M(iBead) = ((iBead + 1.0)/(1.0*iBead)) * m;
-    else M(iBead) = m;  
+    M(iBead) = m;  
   }
   
   //////////////////////////////

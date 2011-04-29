@@ -1,6 +1,8 @@
 #include "shab-pimd.h"
+#include "armadillo"
 
 using namespace std;
+using namespace arma;
 
 int main (int argc, char* argv[])
 {
@@ -49,16 +51,10 @@ int main (int argc, char* argv[])
   }
   inputStream.close();
 
-  bool useStage; // Use Staging
-  bool useNormal; // Use Normal Mode
-
-  if (varTransform==1) {
-    useStage = 1;
-    useNormal = 0;
-  } else if (varTransform==2) {
-    useNormal = 1;
-    useNormal = 0;
-  }
+  bool useStage = 0; // Use Staging
+  if (varTransform==1) useStage = 1;
+  bool useNormal = 0; // Use Normal Mode
+  if (varTransform==2) useNormal = 1;
 
   cout << "Number of Particles: " << nPart << "\n";
   cout << "Dimension: " << nD << "\n";
@@ -156,6 +152,6 @@ int main (int argc, char* argv[])
   if(measureScalars) statsScalars(scalarFile,nBlock); 
   
   cout << "\nDone.\n\n"; 
-  
+
   return 0;
 }
