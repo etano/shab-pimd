@@ -40,6 +40,12 @@ for i in range(0, len(inputFile)):
       stats[i].append(CalcStatistics.getAndOutputStats(myArray, myArrayHeadings))
       #Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
 
+
+
+# THIS IS HARD CODED
+# NEEDS TO BE CHANGED FOR X-VALUES
+# OTHER THAN 1 - 10
+
 # Beta Values
 beta = []
 for i in range(0, len(stats)): 
@@ -48,6 +54,9 @@ for i in range(0, len(stats)):
   for j in range(0, len(stats[i])):
     # For every beta point
     beta[i].append(j+1)
+
+
+
 
 # Rotate Data into Columns
 col = []

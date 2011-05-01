@@ -10,7 +10,7 @@ using namespace arma;
 class Paths
 {
 public:
-  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn , const bool useNormalIn , const bool useNHIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn );  // Constructor
+  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const int transformationIn , const int thermostatIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn );  // Constructor
   ~Paths(); // Destructor
 
   // Observables Functions
@@ -45,6 +45,9 @@ private:
   double w; // Harmonic Oscillator Frequency
   double mw2; // m * w^2
   
+  int transformation; // 0 - No Transformation, 1 - Staging, 2 - Normal Mode
+  int thermostat; // 0 - No Thermostat, 1 - Nose-Hoover, 2 - Langevin
+
   // 3D Matrices
   field<rowvec> R; // Positions R
   field<rowvec> P; // Momenta
@@ -62,6 +65,9 @@ private:
   
   // Molecular Dynamics Functions
   void UpdateF( field<rowvec>& FX ); // Update Force
+  
+  // Thermostat
+  void ApplyThermostat();
   
   // Masses
   rowvec M;
@@ -97,6 +103,15 @@ private:
   rowvec NHd; // Suzuki-Yoshia Weight Factors 
   void initNoseHoover(); // Initiate Nose-Hoover
   void NHThermostat(); // Thermostatting function
+
+  // Langevin Thermostat
+  bool useLT; // 1 - Use Langevin Thermostat, 0 - Don't
+  rowvec LTOmega; // Normal Mode Frequencies
+  rowvec LTGamma; // Langevin Friction Constants
+  rowvec LTC1; // Langevin Momentum Multiplier
+  rowvec LTC2; // Langevin Force Multiplier
+  void initLangevinThermostat(); // Thermostatting function
+  void LangevinThermostat(); // Thermostatting function
 
 };
 

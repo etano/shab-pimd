@@ -1,7 +1,7 @@
 #include "PathsClass.h"
 
 // Paths constructor
-Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const bool useStageIn, const bool useNormalIn , const bool useNHIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn )
+Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const int transformationIn , const int thermostatIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn )
 {
   // Set constants
   nPart = nPartIn; // # of Particles
@@ -11,10 +11,9 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   dt = dtIn; // MD Time Step
   L = LIn; // Size of Simulation Box
 
-  useStage = useStageIn; // Use Staging
-  useNormal = useNormalIn; // Use Normal Mode
+  transformation = transformationIn; // 0 - No Transformation, 1 - Staging, 2 - Normal Mode
+  thermostat = thermostatIn; // 0 - No Thermostat, 1 - Nose-Hoover, 2 - Langevin
 
-  useNH = useNHIn; // Use Nose-Hoover Thermostat
   nNH = nNHIn; // Length of Nose-Hoover Thermostat
   SYOrder = SYOrderIn; // Order of Suzuki-Yoshida Factorization
   nNHsteps = nNHstepsIn; // Number of Nose-Hoover Steps per sweep
@@ -88,14 +87,27 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   /* Initialize Transformation */
   /////////////////////////////// 
 
+  useStage = 0;
+  useNormal = 0;
+
+  if (transformation == 1) useStage = 1;
+  if (transformation == 2) useNormal = 1;
+
   if (useStage) initStaging();
   if (useNormal) initNormalMode();
   
-  //////////////////////////////////
-  /* Initialize Nose-Hoover Chain */
-  //////////////////////////////////  
+  ///////////////////////////
+  /* Initialize Thermostat */
+  ///////////////////////////  
+
+  useNH = 0;
+  useLT = 0;
     
+  if (thermostat == 1) useNH = 1;
+  if (thermostat == 2) useLT = 1;
+
   if (useNH) initNoseHoover();
+  if (useLT) initLangevinThermostat();
 
 }
 
@@ -165,7 +177,7 @@ rowvec Paths::getgradV( const int iPart, const int iBead )
 void Paths::takeStep()
 {      
 		
-  if (useNH) NHThermostat();
+  if(thermostat) ApplyThermostat();
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
@@ -183,7 +195,7 @@ void Paths::takeStep()
     }
   }  
   
-  if (useNH) NHThermostat();
+  if(thermostat) ApplyThermostat();
   
 }
 
@@ -210,5 +222,15 @@ void Paths::UpdateF( field<rowvec>& FX )
     }
     
   }
+}
+
+//////////////////////////////////
+/* Molecular Dynamics Functions */
+//////////////////////////////////
+
+void Paths::ApplyThermostat()
+{
+  if (useNH) NHThermostat();
+  if (useLT) LangevinThermostat();
 }
 
