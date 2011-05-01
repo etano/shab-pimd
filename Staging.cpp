@@ -29,7 +29,7 @@ void Paths::initStaging()
 // See eq 116, Ref 1
 void Paths::takeStepStage()
 {    
-  if (useNH) NHThermostat();
+  if(thermostat) ApplyThermostat();
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
@@ -47,7 +47,7 @@ void Paths::takeStepStage()
     }
   }
   
-  if (useNH) NHThermostat();  
+  if(thermostat) ApplyThermostat();
 }
 
 // Assign actual positions, going from ui's to xi's

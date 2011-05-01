@@ -28,8 +28,8 @@ int main (int argc, char* argv[])
   double L; // Simulation box size
   int eSteps; // Number of Equilibration Sweeps
   int rSteps; // Number of Recording Sweeps
-  int varTransform; // Variable Transformation: 0 - None, 1 - Staging, 2 - Normal Mode
-  bool useNH; // Use Nose-Hoover Thermostat
+  int transformation; // Variable Transformation: 0 - None, 1 - Staging, 2 - Normal Mode
+  int thermostat; // 0 - No Thermostat, 1 - Nose-Hoover, 2 - Langevin
   int nNH; // Length of Nose-Hoover Thermostat
   int SYOrder; // Order of Suzuki-Yoshida Factorization
   int nNHsteps; // Number of Nose-Hoover Steps
@@ -43,8 +43,8 @@ int main (int argc, char* argv[])
     inputStream >> L;
     inputStream >> eSteps;
     inputStream >> rSteps;
-    inputStream >> varTransform;
-    inputStream >> useNH;
+    inputStream >> transformation;
+    inputStream >> thermostat;
     inputStream >> nNH;
     inputStream >> SYOrder;
     inputStream >> nNHsteps;    
@@ -52,9 +52,9 @@ int main (int argc, char* argv[])
   inputStream.close();
 
   bool useStage = 0; // Use Staging
-  if (varTransform==1) useStage = 1;
+  if (transformation==1) useStage = 1;
   bool useNormal = 0; // Use Normal Mode
-  if (varTransform==2) useNormal = 1;
+  if (transformation==2) useNormal = 1;
 
   cout << "Number of Particles: " << nPart << "\n";
   cout << "Dimension: " << nD << "\n";
@@ -64,9 +64,8 @@ int main (int argc, char* argv[])
   cout << "Simulation Box Size: " << L << "\n";
   cout << "Number of Equilibration Sweeps: " << eSteps << "\n";
   cout << "Number of Recording Sweeps: " << rSteps << "\n";
-  cout << "Staging?: " << useStage << "\n";
-  cout << "Normal Mode?: " << useNormal << "\n";
-  cout << "Nose-Hoover?: " << useNH << "\n";
+  cout << "Variable Transformation: " << transformation << "\n";
+  cout << "Thermostat: " << thermostat << "\n";
   cout << "Nose-Hoover Length: " << nNH << "\n";
   cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
   cout << "Number of Nose-Hoover Steps: " << nNHsteps << "\n";
@@ -75,7 +74,7 @@ int main (int argc, char* argv[])
   fstream scalarTrace;   
   char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
   char scalarFile[sizeof scalarFormat];
-  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,varTransform,useNH,nNH,SYOrder,nNHsteps); 
+  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,nNH,SYOrder,nNHsteps); 
   cout << "\nOutputting data to " << scalarFile << ".\n";
   scalarTrace.open (scalarFile, ios::out | ios::trunc);
   
@@ -83,7 +82,7 @@ int main (int argc, char* argv[])
   cout << scientific << setprecision(4);
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L,useStage,useNormal,useNH,nNH,SYOrder,nNHsteps);     
+  Paths path(nPart,nD,nBead,beta,dt,L,transformation,thermostat,nNH,SYOrder,nNHsteps);     
   
   // Measurements
   bool measureScalars = 1;

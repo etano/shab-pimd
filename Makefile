@@ -10,6 +10,7 @@ SOURCES += Stats.cpp
 SOURCES += Staging.cpp
 SOURCES += NormalMode.cpp
 SOURCES += NoseHoover.cpp
+SOURCES += Langevin.cpp
 SOURCES += rng/sfmt.cpp 
 SOURCES += rng/mersenne.cpp 
 SOURCES += rng/userintf.cpp
