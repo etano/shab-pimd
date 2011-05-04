@@ -1,5 +1,13 @@
 #include "Stats.h"
 
+int factorial(int n) {
+  return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+}
+
+double choose ( const int N , const int M ) {
+  return factorial(N)  * 1.0/(factorial(M) * factorial(N - M) * 1.0);
+}
+
 double getMean ( const std::vector<double>& data ) {
   int N = data.size();
   double mean = 0.0;
@@ -48,14 +56,14 @@ double getError( const std::vector<double>& data ) {
   return sqrt(kappa*var/N);
 }
 
-void statsScalars ( char* scalarFile , int nblock ) {
+void statsScalars ( const char* scalarFile , int nblock ) {
 
   std::ifstream scalarTrace;
 
   int count; 
-  double t, PE, VE, R, R2;
-  std::string st, sPE, sVE, sR, sR2;
-  std::vector<double> tvec, PEvec, VEvec, Rvec, R2vec;
+  double t, PE, VE, R, R2, BS;
+  std::string st, sPE, sVE, sR, sR2, sBS;
+  std::vector<double> tvec, PEvec, VEvec, Rvec, R2vec, BSvec;
     
   scalarTrace.open(scalarFile);
   
@@ -68,17 +76,20 @@ void statsScalars ( char* scalarFile , int nblock ) {
       scalarTrace >> VE;
       scalarTrace >> R;
       scalarTrace >> R2;
+      scalarTrace >> BS;
       tvec.push_back(t);
       PEvec.push_back(PE);
       VEvec.push_back(VE);
       Rvec.push_back(R);
-      R2vec.push_back(R2);      
+      R2vec.push_back(R2);
+      BSvec.push_back(BS);      
     } else {
       scalarTrace >> st; 
       scalarTrace >> sPE;
       scalarTrace >> sVE;
       scalarTrace >> sR;
-      scalarTrace >> sR2;      
+      scalarTrace >> sR2;
+      scalarTrace >> sBS;      
     }
     
     count += 1;
@@ -89,6 +100,7 @@ void statsScalars ( char* scalarFile , int nblock ) {
   std::cout << "VE: " << getMean(VEvec) << " (" << getError(VEvec) << ")\n";
   std::cout << "R: " << getMean(Rvec) << " (" << getError(Rvec) << ")\n";
   std::cout << "R2: " << getMean(R2vec) << " (" << getError(R2vec) << ")\n";
+  std::cout << "BS: " << getMean(BSvec) << " (" << getError(BSvec) << ")\n";
   
   // Close files
   scalarTrace.close();

@@ -6,24 +6,21 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import *
 import sys
 
-# Output Figure Label
-outputLabel = str(sys.argv[1])
-
 # Input File
 inputFile = []
-for i in range(0, len(sys.argv)-2):  
-  inputFileName = "inputs/" + str(sys.argv[i+2])
+for i in range(0, len(sys.argv)-1):  
+  inputFileName = "inputs/" + str(sys.argv[i+1])
   inputFile.append([])
   inputFile[i] = open(inputFileName,'r')
 
 # Input Data
 inputFileLabel = []
-stats = []
+scalarData = []
 for i in range(0, len(inputFile)):
   # For every input file
   firstLine = True
   inputFileLabel.append([])
-  stats.append([])
+  scalarData.append([])
   for line in inputFile[i]:
     if firstLine:
     # First line label
@@ -34,10 +31,10 @@ for i in range(0, len(inputFile)):
       inputLine = str(line)
       fileExtension = inputLine.replace(' ','-')
       fileExtension = fileExtension.replace('\n','')
-      filePath = "data/traces/scalarTrace-" + fileExtension + ".dat"    
-      print "\nReading data from " + filePath + "."
-      (myArray, myArrayHeadings) = ReadData.loadAscii(filePath)
-      stats[i].append(CalcStatistics.getAndOutputStats(myArray, myArrayHeadings))
+      scalarFilePath = "data/traces/scalarTrace-" + fileExtension + ".dat"    
+      print "\nReading data from " + scalarFilePath + "."
+      (myArray, myArrayHeadings) = ReadData.loadAscii(scalarFilePath)
+      scalarData[i].append(CalcStatistics.getAndOutputStats(myArray, myArrayHeadings))
       #Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
 
 
@@ -48,10 +45,10 @@ for i in range(0, len(inputFile)):
 
 # Beta Values
 beta = []
-for i in range(0, len(stats)): 
+for i in range(0, len(scalarData)): 
   # For every input file 
   beta.append([])
-  for j in range(0, len(stats[i])):
+  for j in range(0, len(scalarData[i])):
     # For every beta point
     beta[i].append(j+1)
 
@@ -60,19 +57,19 @@ for i in range(0, len(stats)):
 
 # Rotate Data into Columns
 col = []
-for i in range(0, len(stats)):
+for i in range(0, len(scalarData)):
   # For every input file
   col.append([])
-  for j in range(0, len(stats[i][0])):
+  for j in range(0, len(scalarData[i][0])):
     # For every observable
     col[i].append([])
-    for k in range(0, len(stats[i][0][0])):
+    for k in range(0, len(scalarData[i][0][0])):
       # For every statistic
       col[i][j].append([])
-      for l in range(0, len(stats[i])):
+      for l in range(0, len(scalarData[i])):
         # For every beta point
         col[i][j][k].append([])
-        col[i][j][k][l] = stats[i][l][j][k]
+        col[i][j][k][l] = scalarData[i][l][j][k]
 
 # Generate Plots
 print "\nGenerating Plots:"
@@ -85,8 +82,8 @@ for i in range(0, len(col[0])):
     plt.errorbar(beta[j], col[j][i][0], col[j][i][3], label=inputFileLabel[j])
   plt.legend()
   plt.suptitle(myArrayHeadings[i+1] + " vs Beta", fontsize=12)
-  plt.savefig("data/figures/" + outputLabel + "-" + myArrayHeadings[i+1] + "VsBeta.png")
+  plt.savefig("data/figures/" + myArrayHeadings[i+1] + "vBeta" + fileExtension + ".png")
   plt.clf()
-  print "\nPlot data/figures/" + outputLabel + "-" + myArrayHeadings[i+1] + "VsBeta.png Generated!"
+  print "\nPlot data/figures/" + myArrayHeadings[i+1] + "vBeta" + fileExtension + ".png Generated!"
 
 print "\nDone.\n"

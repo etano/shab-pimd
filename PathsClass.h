@@ -18,6 +18,10 @@ public:
   double getVE(); // Get "Virial" Energy estimator
   double getR(); // Get Position estimator
   double getR2(); // Get Position Squared estimator
+  double getBS(); // Get Bead Spread estimator
+  rowvec getR(int iPart); // Get Position estimator for single particle
+  void UpdateDensity(field<rowvec>& RDen); // Update Density
+  void UpdateGrr(vec& Grr); // Update Pair Correlation
   
   // Molecular Dynamics Functions
   void takeStep(); // Take a step
@@ -36,7 +40,7 @@ private:
   double dt; // Time step  
   double L; // Simulation Box Size
   double wp; // Defined frequency
-  double oneOvernBead, oneOvernPartnBead, nDnPartOver2Beta, nDnPartnBeadOver2Beta, wp2, mwp2, kT; // These are context clear (check Paths constructor)
+  double oneOvernPart, oneOvernBead, oneOvernPartnBead, nDnPartOver2Beta, nDnPartnBeadOver2Beta, wp2, mwp2, kT; // These are context clear (check Paths constructor)
   
   double m; // Particle Mass, Default 1
   double hbar; // Plank's Constant/2pi, Default 1

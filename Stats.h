@@ -7,6 +7,11 @@
 #include <string>
 #include <vector>
 
+
+int factorial(int n);
+
+double choose ( const int N , const int M );
+
 double getMean ( const std::vector<double>& data );
 
 double getVar ( const std::vector<double>& data );
@@ -17,6 +22,6 @@ double getKappa( const std::vector<double>& data );
 
 double getError( const std::vector<double>& data );
 
-void statsScalars ( char* efile , int nblock );
+void statsScalars ( const char* efile , int nblock );
 
 #endif
