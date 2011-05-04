@@ -28,3 +28,6 @@ $(EXECUTABLE): $(OBJECTS)
 	
 clean:
 	rm -rf ./rng/*.o *.o $(EXECUTABLE)
+	
+scrubData:
+	rm -rf ./data/figures/*.png ./data/traces/*.dat ./data/output/*.out

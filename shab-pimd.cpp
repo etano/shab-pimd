@@ -69,39 +69,63 @@ int main (int argc, char* argv[])
   cout << "Nose-Hoover Length: " << nNH << "\n";
   cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
   cout << "Number of Nose-Hoover Steps: " << nNHsteps << "\n";
-
-  // Output files
-  fstream scalarTrace;   
-  char scalarFormat[] = "data/traces/scalarTrace-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
-  char scalarFile[sizeof scalarFormat];
-  sprintf(scalarFile,scalarFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,nNH,SYOrder,nNHsteps); 
-  cout << "\nOutputting data to " << scalarFile << ".\n";
-  scalarTrace.open (scalarFile, ios::out | ios::trunc);
   
   // COUT FORMATTING
   cout << scientific << setprecision(4);
     
   // Intialise paths
   Paths path(nPart,nD,nBead,beta,dt,L,transformation,thermostat,nNH,SYOrder,nNHsteps);     
-  
-  // Measurements
-  bool measureScalars = 1;
 
-  // Initialize observables;
-  double PE, VE, R, R2; 
-  PE = path.getPE();
-  VE = path.getVE();
-  R = path.getR();
-  R2 = path.getR2();
-  cout << "\nInitial Measurements:\n";
-  cout << "PE: " << PE << " VE: " << VE << " R: " << R << " R2: " << R2 << "\n"; 
-  scalarTrace << "t PE VE R R2\n";
-           
-  // Reset Scalars
-  PE = 0.0;
-  VE = 0.0;
-  R = 0.0;
-  R2 = 0.0;
+  // Form Output String
+  char outputFormat[] = "-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
+  char outputFile[sizeof outputFormat];
+  sprintf(outputFile,outputFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,nNH,SYOrder,nNHsteps); 
+  string outputString(outputFile);
+
+  // Scalar Observables Output File
+  string scalarFile = "data/traces/scalarTrace" + outputString;
+  cout << "\nOutputting scalar data to " << scalarFile << ".\n";
+  fstream scalarTrace;
+  scalarTrace.open (scalarFile.c_str(), ios::out | ios::trunc);
+  scalarTrace << "t PE VE R R2 BS\n";
+  
+  // Initialize Scalar Observables;
+  bool measureScalars = 1;
+  double PE = 0.0;
+  double VE = 0.0;
+  double R = 0.0;
+  double R2 = 0.0;
+  double BS = 0.0;
+
+  // Pair Correlation Output File
+  string GrrFile = "data/traces/GrrTrace" + outputString;
+  cout << "\nOutputting Grr data to " << GrrFile << "\n";
+  fstream GrrTrace;
+  GrrTrace.open (GrrFile.c_str(), ios::out | ios::trunc);
+  GrrTrace << "Grr\n";
+
+  // Initialize Pair Correlation
+  bool measureGrr = 1;
+  const int nPair = choose(nPart, 2); // nPart choose 2
+  vec Grr(nPair);
+  Grr.zeros();
+
+  // Density Output File
+  string RDenFile = "data/traces/RDenTrace" + outputString;
+  cout << "\nOutputting Density data to " << RDenFile << "\n";
+  fstream RDenTrace;
+  RDenTrace.open (RDenFile.c_str(), ios::out | ios::trunc);
+  for (unsigned int iD = 0; iD < nD; iD += 1) {
+    RDenTrace << "r ";
+  }
+  RDenTrace << "\n";
+
+  // Initialize Density
+  bool measureDensity = 1;
+  field<rowvec> RDen(nPart);
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    RDen(iPart).zeros(nD);
+  }
   
   // Main Simulation Loop
   int totSteps = eSteps + rSteps;
@@ -116,26 +140,56 @@ int main (int argc, char* argv[])
     else if (useNormal) path.takeStepNormal();
     else path.takeStep();
   
-    if(measureScalars && t>=eSteps) {
+    // Compute and Update Values
+    if (t > eSteps-1) {
     
-      // Compute Scalars
-      PE += path.getPE();
-      VE += path.getVE();
-      R += path.getR();
-      R2 += path.getR2();  
-            
-      // Blocking      
-      if ((t%block)==0) {  
+      // Scalars
+      if (measureScalars) {
+        PE += path.getPE();
+        VE += path.getVE();
+        R += path.getR();
+        R2 += path.getR2();  
+        BS += path.getBS();
+      }
+
+      // Density
+      if (measureDensity) path.UpdateDensity(RDen);
+      
+      // Pair Correlation
+      if(measureGrr) path.UpdateGrr(Grr);
+      
+      // Output and Reset Values      
+      if ((t%block)==0) {
          
-        // Output Scalars
-        scalarTrace << t/block << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << "\n"; 
-           
-        // Reset Scalars
-        PE = 0.0;
-        VE = 0.0;
-        R = 0.0;
-        R2 = 0.0;
-           
+        // Scalars
+        if (measureScalars) {
+          scalarTrace << t/block << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << " " << BS/block << "\n"; 
+          PE = 0.0;
+          VE = 0.0;
+          R = 0.0;
+          R2 = 0.0;
+          BS = 0.0;
+        }
+      
+        // Density
+        if (measureDensity) {
+          for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+            for (unsigned int iD = 0; iD < nD; iD += 1) {
+              RDenTrace << RDen(iPart)(iD)/block << " ";
+            }
+            RDenTrace << "\n";
+            RDen(iPart).zeros();
+          }
+        }
+
+        // Pair Correlation
+        if (measureGrr) {
+          for (unsigned int iPair = 0; iPair < nPair; iPair += 1) {
+            GrrTrace << Grr(iPair)/block << "\n";
+          }
+          Grr.zeros();
+        }         
+      
         nBlock += 1;
       }
     }
@@ -147,8 +201,8 @@ int main (int argc, char* argv[])
   // Close files
   scalarTrace.close();
   
-  // Compute and Output stats
-  if(measureScalars) statsScalars(scalarFile,nBlock); 
+  // Compute and Output Scalar Stats
+  if(measureScalars) statsScalars(scalarFile.c_str(),nBlock);
   
   cout << "\nDone.\n\n"; 
 

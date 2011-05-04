@@ -7,6 +7,4 @@
 
 using namespace arma;
 
-const double pi = math::pi();
-
 #endif

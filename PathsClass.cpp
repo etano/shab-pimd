@@ -31,6 +31,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   wp = sqrt(nBead*1.0)/(beta*hbar);
   wp2 = wp*wp;
   mwp2 = m*wp*wp;  
+  oneOvernPart = 1.0/(1.0*nPart);
   oneOvernBead = 1.0/(1.0*nBead);
   oneOvernPartnBead = 1.0/(1.0*nPart*nBead);
   nDnPartOver2Beta = 1.0*nD*nPart/(2.0*beta);

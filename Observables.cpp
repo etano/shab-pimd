@@ -39,7 +39,7 @@ double Paths::getVE()
   return nDnPartOver2Beta + oneOvernBead*total;
 }
 
-// Position Estimator
+// Position Estimator for all particles
 double Paths::getR()
 {
   rowvec Rsum(nD);
@@ -56,7 +56,7 @@ double Paths::getR()
   return oneOvernPartnBead * total;
 }
 
-// Position Squared Estimator
+// Position Squared Estimator for all particles
 double Paths::getR2()
 {
   double total = 0.0;
@@ -68,4 +68,59 @@ double Paths::getR2()
   }
   
   return oneOvernPartnBead * total;
+}
+
+// Bead Spread for all particles
+double Paths::getBS()
+{
+  rowvec Ri(nD);
+  double total = 0.0;
+
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    Ri = getR(iPart);
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      total += Distance( R(iPart,iBead) , Ri );
+    }
+  }
+  
+  return oneOvernPartnBead * total;
+}
+
+// Position Estimator for single particle
+rowvec Paths::getR( const int iPart )
+{
+  rowvec Rsum(nD);
+  Rsum.zeros();
+
+  for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+    Rsum += R(iPart,iBead);
+  }
+  
+  return oneOvernBead * Rsum;
+}
+
+// Density
+void Paths::UpdateDensity(field<rowvec>& RDen)
+{
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    RDen(iPart) += getR(iPart);
+  }
+
+}
+
+// Pair Correlation
+void Paths::UpdateGrr(vec& Grr)
+{
+  int iPair = 0;
+  rowvec Ri(nD), Rj(nD);
+
+  for (unsigned int iPart = 0; iPart < nPart-1; iPart += 1) {
+    for (unsigned int jPart = iPart+1; jPart < nPart; jPart += 1) {
+      Ri = getR(iPart);
+      Rj = getR(jPart);
+      Grr(iPair) += Distance( Ri , Rj );
+      iPair += 1;
+    }
+  }
+  
 }
