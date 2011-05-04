@@ -54,7 +54,6 @@ for i in range(0, len(scalarData)):
 
 
 
-
 # Rotate Data into Columns
 col = []
 for i in range(0, len(scalarData)):

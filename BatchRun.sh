@@ -8,9 +8,10 @@ do
     firstVar=0
   else
     nLines=$(wc -l < "inputs/$var" )
-    echo "$var" "has" $nLines "input lines"
+    nInputLines=$(($nLines-1))
+    echo "$var" "has" $nInputLines "input lines"
 
-    line="1"
+    line="2"
     echo "$line " > BatchRun.txt
     while [ $line -lt $nLines ]
     do

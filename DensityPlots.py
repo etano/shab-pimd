@@ -38,13 +38,11 @@ for i in range(0, len(inputFile)):
       print "\nReading data from " + RDenFilePath + "."
       (myArray, myArrayHeadings) = ReadData.loadAscii(RDenFilePath)
       RDenData[i].append(myArray)
-      #Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
 
 # Generate Plots
 print "\nGenerating Plots:"
 plt.xlabel("r")
 plt.ylabel("Density")
-plt.xlim(-10.0,10.0) 
 for i in range(0, len(inputFile)):
   # For every input file 
   for j in range(0, len(RDenData[i])):
