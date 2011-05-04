@@ -1,7 +1,7 @@
 #include "PathsClass.h"
 
 // Paths constructor
-Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const int transformationIn , const int thermostatIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn )
+Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const int transformationIn , const int thermostatIn , const int interactionIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn )
 {
   // Set constants
   nPart = nPartIn; // # of Particles
@@ -13,6 +13,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
 
   transformation = transformationIn; // 0 - No Transformation, 1 - Staging, 2 - Normal Mode
   thermostat = thermostatIn; // 0 - No Thermostat, 1 - Nose-Hoover, 2 - Langevin
+  interaction = interactionIn; // 0 - No Interaction, 1 - Lennard Jones, 2 - Coulomb
 
   nNH = nNHIn; // Length of Nose-Hoover Thermostat
   SYOrder = SYOrderIn; // Order of Suzuki-Yoshida Factorization
@@ -35,7 +36,13 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   oneOvernBead = 1.0/(1.0*nBead);
   oneOvernPartnBead = 1.0/(1.0*nPart*nBead);
   nDnPartOver2Beta = 1.0*nD*nPart/(2.0*beta);
-  nDnPartnBeadOver2Beta = 1.0*nD*nPart*nBead/(2.0*beta);  
+  nDnPartnBeadOver2Beta = 1.0*nD*nPart*nBead/(2.0*beta); 
+
+  // Lennard-Jones-Constants
+	rcut = 0; // Set to system Size Needs to be adjusted for Periodic Boundary Calculation
+	r0 = 1; // Length scale of interaction
+	e0 = 1; // Strength of interaction
+	ecut = 0; // Adjust here  
   
   // Set bead loop
   bL.set_size(2*nBead);
@@ -61,28 +68,35 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   //////////////////////////////
   
   // Positions R
-  R.set_size(nPart,nBead);
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      R(iPart,iBead).zeros(nD);
-    }
-  }
-  
-  // Forces F
-  F.set_size(nPart,nBead);
-  UpdateF(F);
+  InitR();
   
   // Momenta P
   P.set_size(nPart,nBead);
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    P(iPart,0).zeros(nD);
-    for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       P(iPart,iBead).zeros(nD);
       for (unsigned int iD = 0; iD < nD; iD += 1) {
         P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
       }
     }    
   }
+
+  // Interaction 
+  GradVint.set_size(nPart,nBead);
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      GradVint(iPart,iBead).zeros(nD);
+    }
+  }
+  
+  // Forces F
+  F.set_size(nPart,nBead);
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      F(iPart,iBead).zeros(nD);
+    }
+  }
+  UpdateF();
     
   ///////////////////////////////
   /* Initialize Transformation */
@@ -116,6 +130,66 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
 Paths::~Paths()
 {
 }
+
+///////////////////////////
+/* System Initialization */
+///////////////////////////
+
+void Paths::InitR()
+{
+  R.set_size(nPart,nBead);
+
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      R(iPart,iBead).zeros(nD);
+    }
+  }
+
+  int nCube = 1;
+  while (pow(nCube,nD) < nPart) nCube += 1;
+  double rs = L/(1.0*nCube);
+  double rOffset = (L - rs)/2.0;
+
+  int iPart;
+  for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+    iPart = 0;
+    if (nD == 1) {
+      for (unsigned int x = 0; x < nCube; x += 1) {
+        if (iPart < nPart) {
+          R(iPart,iBead)(0) = rs*x - rOffset;
+          iPart++;
+        }
+      }
+    }
+    if (nD == 2) {
+      for (unsigned int x = 0; x < nCube; x += 1) {
+        for (unsigned int y = 0; y < nCube; y += 1) {
+          if (iPart < nPart) {
+            R(iPart,iBead)(0) = rs*x - rOffset;
+            R(iPart,iBead)(1) = rs*y - rOffset;
+            iPart++;
+          }
+        }
+      }
+    }
+    if (nD == 3) {
+      for (unsigned int x = 0; x < nCube; x += 1) {
+        for (unsigned int y = 0; y < nCube; y += 1) {
+          for (unsigned int z = 0; z < nCube; z += 1) {
+            if (iPart < nPart) {
+              R(iPart,iBead)(0) = rs*x - rOffset;
+              R(iPart,iBead)(1) = rs*y - rOffset;
+              R(iPart,iBead)(2) = rs*z - rOffset;
+              iPart++;
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
+
 
 ////////////////////////////////////////////////////
 /* Routines to ensure periodic boundary coditions */
@@ -159,7 +233,7 @@ double Paths::getV( const int iPart, const int iBead )
 // dV/dr = m w^2 r
 double Paths::getdV( const int iPart, const int iBead )
 {
-  return mw2 * norm( R(iPart,iBead) , 2 );
+  return norm( getgradV(iPart,iBead) , 2 );
 }
 
 // Get Derivative of Potential for iPart, iBead
@@ -167,7 +241,48 @@ double Paths::getdV( const int iPart, const int iBead )
 // dV/dr = m w^2 r
 rowvec Paths::getgradV( const int iPart, const int iBead )
 {
-  return mw2 * R(iPart,iBead);
+  return mw2 * R(iPart,iBead) + GradVint(iPart,iBead);
+}
+
+// Update Gradient of Interacting Potential
+void Paths::UpdateGradVint()
+{
+  rowvec dRij, gVint;
+  for (unsigned int iBead = 0; iBead < nBead; iBead +=1) {
+    for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+      GradVint(iPart,iBead).zeros();
+    }
+    
+    for (unsigned int iPart = 0; iPart < nPart-1; iPart += 1) {
+      for (unsigned int jPart = iPart+1; jPart < nPart; jPart += 1) {
+        dRij = Displacement( R(iPart,iBead) , R(jPart,iBead) );
+        gVint = -1.0 * InteractionForce(dRij);
+        GradVint(iPart,iBead) += gVint;
+        GradVint(jPart,iBead) -= gVint;
+      }
+    }
+  }
+}
+
+//Calculate Pair-Potential-Force; 1-LJ, 2-Coulomb, 
+rowvec Paths::InteractionForce( rowvec& dRij )
+{
+  if (interaction==0) {
+    return 0.0 * dRij;
+  }
+
+	double r2 = norm(dRij,2); 
+	if (interaction==1){
+		r2 = r2/r0;  //Distance in units of r0
+		double r2i = 1.0/r2; //Inverse Distance
+		double r6i = r2i*r2i*r2i;
+    
+		double ff = 48.0*e0*r2i*r6i*(r6i-0.5);
+		return ff * dRij;
+	}
+	if (interaction == 2){
+		return e0/r2/r2/r2 * dRij;
+	}
 }
 
 //////////////////////////////////
@@ -188,7 +303,7 @@ void Paths::takeStep()
     }
   }
     
-  UpdateF(F); 
+  UpdateF(); 
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
@@ -201,8 +316,10 @@ void Paths::takeStep()
 }
 
 // Update the Force for every bead of every particle
-void Paths::UpdateF( field<rowvec>& FX )
+void Paths::UpdateF()
 {
+  UpdateGradVint();
+
   rowvec dR1, dR2;
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
   
@@ -211,7 +328,7 @@ void Paths::UpdateF( field<rowvec>& FX )
     dR2 = R(iPart,nBead-1) - R(iPart,0);
     PutInBox(dR1);
     PutInBox(dR2);
-    FX(iPart,0) = M(0)*wp2*(dR1 + dR2) - oneOvernBead*getgradV(iPart,0);
+    F(iPart,0) = M(0)*wp2*(dR1 + dR2) - oneOvernBead*getgradV(iPart,0);
     
     // Do the rest of the time slices
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
@@ -219,7 +336,7 @@ void Paths::UpdateF( field<rowvec>& FX )
       dR2 = R(iPart,iBead-1) - R(iPart,iBead);
       PutInBox(dR1);
       PutInBox(dR2);
-      FX(iPart,iBead) = M(iBead)*wp2*(dR1 + dR2) - oneOvernBead*getgradV(iPart,iBead);
+      F(iPart,iBead) = M(iBead)*wp2*(dR1 + dR2) - oneOvernBead*getgradV(iPart,iBead);
     }
     
   }

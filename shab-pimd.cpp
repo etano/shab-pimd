@@ -30,6 +30,7 @@ int main (int argc, char* argv[])
   int rSteps; // Number of Recording Sweeps
   int transformation; // Variable Transformation: 0 - None, 1 - Staging, 2 - Normal Mode
   int thermostat; // 0 - No Thermostat, 1 - Nose-Hoover, 2 - Langevin
+  int interaction; // 0 - No Interaction, 1 - Lennard Jones, 2 - Coulomb
   int nNH; // Length of Nose-Hoover Thermostat
   int SYOrder; // Order of Suzuki-Yoshida Factorization
   int nNHsteps; // Number of Nose-Hoover Steps
@@ -45,6 +46,7 @@ int main (int argc, char* argv[])
     inputStream >> rSteps;
     inputStream >> transformation;
     inputStream >> thermostat;
+    inputStream >> interaction;
     inputStream >> nNH;
     inputStream >> SYOrder;
     inputStream >> nNHsteps;    
@@ -65,6 +67,7 @@ int main (int argc, char* argv[])
   cout << "Number of Equilibration Sweeps: " << eSteps << "\n";
   cout << "Number of Recording Sweeps: " << rSteps << "\n";
   cout << "Variable Transformation: " << transformation << "\n";
+  cout << "Variable Transformation: " << interaction << "\n";
   cout << "Thermostat: " << thermostat << "\n";
   cout << "Nose-Hoover Length: " << nNH << "\n";
   cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
@@ -74,12 +77,12 @@ int main (int argc, char* argv[])
   cout << scientific << setprecision(4);
     
   // Intialise paths
-  Paths path(nPart,nD,nBead,beta,dt,L,transformation,thermostat,nNH,SYOrder,nNHsteps);     
+  Paths path(nPart,nD,nBead,beta,dt,L,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps);     
 
   // Form Output String
-  char outputFormat[] = "-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d.dat";
+  char outputFormat[] = "-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d-%d.dat";
   char outputFile[sizeof outputFormat];
-  sprintf(outputFile,outputFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,nNH,SYOrder,nNHsteps); 
+  sprintf(outputFile,outputFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps); 
   string outputString(outputFile);
 
   // Scalar Observables Output File
