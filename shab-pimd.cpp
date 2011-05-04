@@ -67,8 +67,8 @@ int main (int argc, char* argv[])
   cout << "Number of Equilibration Sweeps: " << eSteps << "\n";
   cout << "Number of Recording Sweeps: " << rSteps << "\n";
   cout << "Variable Transformation: " << transformation << "\n";
-  cout << "Variable Transformation: " << interaction << "\n";
   cout << "Thermostat: " << thermostat << "\n";
+  cout << "Interaction: " << interaction << "\n";
   cout << "Nose-Hoover Length: " << nNH << "\n";
   cout << "Order of Suzuki-Yoshida Factorization: " << SYOrder << "\n";
   cout << "Number of Nose-Hoover Steps: " << nNHsteps << "\n";
@@ -80,7 +80,7 @@ int main (int argc, char* argv[])
   Paths path(nPart,nD,nBead,beta,dt,L,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps);     
 
   // Form Output String
-  char outputFormat[] = "-%d-%d-%d-%3.1f-%3.1f-%3.1f-%d-%d-%d-%d-%d-%d-%d-%d.dat";
+  char outputFormat[] = "-%d-%d-%d-%3.1f-%4.3f-%3.1f-%d-%d-%d-%d-%d-%d-%d-%d.dat";
   char outputFile[sizeof outputFormat];
   sprintf(outputFile,outputFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps); 
   string outputString(outputFile);
@@ -137,12 +137,12 @@ int main (int argc, char* argv[])
   int perSkip = totSteps/10;
   cout << "\nRunning Simulation:\n";
   for(unsigned int t = 0; t < totSteps; t++) {
-    
+
     // Verlet Step
     if (useStage) path.takeStepStage();
     else if (useNormal) path.takeStepNormal();
     else path.takeStep();
-  
+
     // Compute and Update Values
     if (t > eSteps-1) {
     
@@ -166,7 +166,7 @@ int main (int argc, char* argv[])
          
         // Scalars
         if (measureScalars) {
-          scalarTrace << t/block << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << " " << BS/block << "\n"; 
+          scalarTrace << t-eSteps << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << " " << BS/block << "\n"; 
           PE = 0.0;
           VE = 0.0;
           R = 0.0;

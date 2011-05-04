@@ -147,7 +147,7 @@ void Paths::InitR()
 
   int nCube = 1;
   while (pow(nCube,nD) < nPart) nCube += 1;
-  double rs = L/(1.0*nCube);
+  double rs = r0;//nPart*r0/(1.0*nCube);
   double rOffset = (L - rs)/2.0;
 
   int iPart;
@@ -281,7 +281,7 @@ rowvec Paths::InteractionForce( rowvec& dRij )
 		return ff * dRij;
 	}
 	if (interaction == 2){
-		return e0/r2/r2/r2 * dRij;
+		return -e0/r2/r2/r2 * dRij;
 	}
 }
 
