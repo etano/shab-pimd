@@ -44,6 +44,7 @@ for i in range(0, len(inputFile)):
 print "\nGenerating Plots:"
 plt.xlabel("r")
 plt.ylabel("Density")
+plt.xlim(-10.0,10.0) 
 for i in range(0, len(inputFile)):
   # For every input file 
   for j in range(0, len(RDenData[i])):

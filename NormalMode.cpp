@@ -24,23 +24,6 @@ void Paths::initNormalMode()
   eig_sym(lambda, NormO, NormA);
   NormO *= sqrt(nBead);
 
-  /*double pi = math::pi();
-  vec lambda(nBead);
-  if ((nBead % 2)==0) {
-    lambda(0) = 0.0;
-    for (unsigned int i = 1; i < nBead/2; i += 1) {
-      lambda(2*i - 1) = 2.0*(1.0 - cos(2.0*pi*i/(nBead*1.0)));
-      lambda(2*i) = lambda(2*i - 1);
-    }
-    lambda(nBead - 1) = 2.0*(1.0 - cos(pi*nBead/(nBead*1.0)));
-  } else {
-    lambda(0) = 0.0;
-    for (unsigned int i = 1; i < nBead; i += 2) {
-      lambda(i) = 2.0*(1.0 - cos(2.0*pi*i/(nBead*1.0)));
-      lambda(i+1) = lambda(i);
-    }
-  }*/
-
   // Masses
   for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {  
     M(iBead) = m * nBead * lambda(iBead);
@@ -49,18 +32,14 @@ void Paths::initNormalMode()
   // Positions
   W.set_size(nPart,nBead);   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    W(iPart,0).zeros(nD);
-    for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       W(iPart,iBead).zeros(nD);
-      for (unsigned int iD = 0; iD < nD; iD += 1) {
-        W(iPart,iBead)(iD) = normRand(0.0,1.0/(beta*M(iBead)*wp2)); //Quantum Free-Particle Distribution
-      }
     }
   }
-  WtoRNormal();
+  RtoWNormal();
 
   // Forces
-  UpdateFNormal(F);
+  UpdateFNormal();
 }
 
 // The Verlet time-stepping algorithm, 'dt' is the time step.
@@ -77,7 +56,7 @@ void Paths::takeStepNormal()
   }
   
   WtoRNormal();
-  UpdateFNormal(F);
+  UpdateFNormal();
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
@@ -103,27 +82,43 @@ void Paths::WtoRNormal()
   }
 }
 
+// Assign actual positions, going from wi's to xi's
+// See eq 12.6.17, Ref 2
+void Paths::RtoWNormal()
+{
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      W(iPart,iBead).zeros();
+      for (unsigned int jBead = 0; jBead < nBead; jBead += 1) {
+        W(iPart,iBead) += NormO(jBead,iBead) * R(iPart,jBead);
+      }
+    }
+  }
+}
+
 // Update the Force for every bead of every particle
 // See eqs 12.6.20, Ref 2
-void Paths::UpdateFNormal( field<rowvec>& FX )
+void Paths::UpdateFNormal()
 {
+  UpdateGradVint();
+
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
   
     // 0th bead (note that the mass is zero, so there is no first term)
-    FX(iPart,0).zeros();
+    F(iPart,0).zeros();
     for (unsigned int jBead = 0; jBead < nBead; jBead += 1) {
-      FX(iPart,0) -= getgradV(iPart, jBead);
+      F(iPart,0) -= getgradV(iPart, jBead);
     }
-    FX(iPart,0) *= oneOvernBead;
+    F(iPart,0) *= oneOvernBead;
     
     // Other beads
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
-      FX(iPart,iBead).zeros();
+      F(iPart,iBead).zeros();
       for (unsigned int jBead = 0; jBead < nBead; jBead += 1) {
-        FX(iPart,iBead) -= getgradV(iPart, jBead) * NormO(jBead,iBead);
+        F(iPart,iBead) -= getgradV(iPart, jBead) * NormO(jBead,iBead);
       }
-      FX(iPart,iBead) *= oneOvernBead;
-      FX(iPart,iBead) -= M(iBead) * wp2 * W(iPart,iBead);
+      F(iPart,iBead) *= oneOvernBead;
+      F(iPart,iBead) -= M(iBead) * wp2 * W(iPart,iBead);
     }    
     
   }

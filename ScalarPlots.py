@@ -35,7 +35,7 @@ for i in range(0, len(inputFile)):
       print "\nReading data from " + scalarFilePath + "."
       (myArray, myArrayHeadings) = ReadData.loadAscii(scalarFilePath)
       scalarData[i].append(CalcStatistics.getAndOutputStats(myArray, myArrayHeadings))
-      #Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
+      Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
 
 
 

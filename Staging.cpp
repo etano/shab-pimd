@@ -11,18 +11,14 @@ void Paths::initStaging()
   // Positions
   U.set_size(nPart,nBead);   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    U(iPart,0).zeros(nD);
-    for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       U(iPart,iBead).zeros(nD);
-      for (unsigned int iD = 0; iD < nD; iD += 1) {
-        U(iPart,iBead)(iD) = normRand(0.0,1.0/(beta*M(iBead)*wp2)); //Quantum Free-Particle Distribution
-      }
     }
   }
-  UtoRStage();
+  RtoUStage();
 
   // Forces
-  UpdateFStage(F);
+  UpdateFStage();
 }
 
 // The Verlet time-stepping algorithm, 'dt' is the time step.
@@ -39,7 +35,7 @@ void Paths::takeStepStage()
   }
   
   UtoRStage();
-  UpdateFStage(F);
+  UpdateFStage();
   
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
@@ -64,10 +60,24 @@ void Paths::UtoRStage()
   }
 }
 
+// Assign actual positions, going from ui's to xi's
+// See eq 12.6.6, Ref 2
+void Paths::RtoUStage()
+{
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    U(iPart, 0) = R(iPart, 0);
+    for (unsigned int iBead = nBead-1; iBead > 0; iBead -= 1) {
+      U(iPart, iBead) = R(iPart, iBead) + ((1.0*iBead)/(iBead + 1.0))*R(iPart, bL(iBead+1)) + (1.0/(iBead + 1.0))*R(iPart, 0);
+    }  
+  }
+}
+
 // Update the Force for every bead of every particle
 // See eqs 12.6.12 & 12.6.13, Ref 2
-void Paths::UpdateFStage( field<rowvec>& FX )
+void Paths::UpdateFStage()
 {
+  UpdateGradVint();
+
   rowvec gradVStageA(nD), gradVStageB(nD);
 
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
@@ -76,13 +86,13 @@ void Paths::UpdateFStage( field<rowvec>& FX )
     gradVStageA.zeros();
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1)
       gradVStageA += getgradV(iPart, iBead);
-    FX(iPart,0) = -1.0 * oneOvernBead * gradVStageA;
+    F(iPart,0) = -1.0 * oneOvernBead * gradVStageA;
     gradVStageB = gradVStageA;
     
     // Other beads
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
       gradVStageA = getgradV(iPart, iBead) + ((iBead - 1.0)/(1.0*iBead))*gradVStageB;
-      FX(iPart,iBead) = -M(iBead) * wp2 * U(iPart,iBead) - oneOvernBead * gradVStageA;
+      F(iPart,iBead) = -M(iBead) * wp2 * U(iPart,iBead) - oneOvernBead * gradVStageA;
       gradVStageB = gradVStageA;
     }    
     

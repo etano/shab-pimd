@@ -10,7 +10,7 @@ using namespace arma;
 class Paths
 {
 public:
-  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const int transformationIn , const int thermostatIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn );  // Constructor
+  Paths( const int nPartIn , const int nDIn , const int nBeadIn , const double betaIn , const double dtIn , const double LIn , const int transformationIn , const int thermostatIn , const int interactionIn , const int nNHIn , const int SYOrderIn , const int nNHstepsIn );  // Constructor
   ~Paths(); // Destructor
 
   // Observables Functions
@@ -51,11 +51,14 @@ private:
   
   int transformation; // 0 - No Transformation, 1 - Staging, 2 - Normal Mode
   int thermostat; // 0 - No Thermostat, 1 - Nose-Hoover, 2 - Langevin
+  int interaction; // 0 - No Interaction, 1 - Lennard Jones, 2 - Coulomb
 
   // 3D Matrices
   field<rowvec> R; // Positions R
   field<rowvec> P; // Momenta
-  field<rowvec> F, nF; // Forces
+  field<rowvec> F; // Force
+  field<rowvec> Vint; // Interacting Potential
+  field<rowvec> GradVint; // Interacting Potential Gradient
     
   // Periodic Boundary Conditions
   void PutInBox( rowvec& Ri );
@@ -66,9 +69,18 @@ private:
   double getV( const int iPart, const int iBsead ); // Get Potential for iPart, iBead
   double getdV( const int iPart, const int iBead ); // Get Derivative of Potential for iPart, iBead
   rowvec getgradV( const int iPart, const int iBead ); // Get Gradient of Potential for iPart, iBead
+
+  // Interaction	
+  double rcut;  // Cut off Radius for PairPotential
+	double ecut; // Energy offset due to cut off
+	double e0;  // Strength of LJ interaction
+	double r0;  // Length Scale of LJ interaction
+  void UpdateGradVint(); // Update Gradient of Interacting Potential
+  rowvec InteractionForce(rowvec&  dRij ); // Get Interaction Force
   
   // Molecular Dynamics Functions
-  void UpdateF( field<rowvec>& FX ); // Update Force
+  void InitR(); // Initialize R
+  void UpdateF(); // Update Force
   
   // Thermostat
   void ApplyThermostat();
@@ -84,7 +96,8 @@ private:
   field<rowvec> U, nU; // Positions (Staging)
   void initStaging(); // Initiate Staging
   void UtoRStage(); // Switch from U to R
-  void UpdateFStage( field<rowvec>& FX ); // Update Force with Staging
+  void RtoUStage(); // Switch from U to R
+  void UpdateFStage(); // Update Force with Staging
   
   // Normal Mode
   bool useNormal; // 1 - Use normal mode, 0 - Don't use normal mode
@@ -92,7 +105,8 @@ private:
   field<rowvec> W, nW; // Positions (Normal Mode)
   void initNormalMode(); // Initiate Normal Mode
   void WtoRNormal(); // Switch from W to R
-  void UpdateFNormal( field<rowvec>& FX ); // Update Force with Normal Mode
+  void RtoWNormal(); // Switch from R to W
+  void UpdateFNormal(); // Update Force with Normal Mode
   
   // Nose-Hoover Thermostat
   bool useNH; // 1 - Use Nose-Hoover, 0 - Don't use Nose-Hoover
