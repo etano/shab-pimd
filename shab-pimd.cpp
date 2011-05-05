@@ -80,7 +80,7 @@ int main (int argc, char* argv[])
   Paths path(nPart,nD,nBead,beta,dt,L,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps);     
 
   // Form Output String
-  char outputFormat[] = "-%d-%d-%d-%3.1f-%4.3f-%3.1f-%d-%d-%d-%d-%d-%d-%d-%d.dat";
+  char outputFormat[] = "-%d-%d-%d-%3.1f-%.1g-%3.1f-%d-%d-%d-%d-%d-%d-%d-%d.dat";
   char outputFile[sizeof outputFormat];
   sprintf(outputFile,outputFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps); 
   string outputString(outputFile);
@@ -90,7 +90,7 @@ int main (int argc, char* argv[])
   cout << "\nOutputting scalar data to " << scalarFile << ".\n";
   fstream scalarTrace;
   scalarTrace.open (scalarFile.c_str(), ios::out | ios::trunc);
-  scalarTrace << "t PE VE R R2 BS\n";
+  scalarTrace << "t n PE VE R R2 BS\n";
   
   // Initialize Scalar Observables;
   bool measureScalars = 1;
@@ -129,14 +129,21 @@ int main (int argc, char* argv[])
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     RDen(iPart).zeros(nD);
   }
-  
+
   // Main Simulation Loop
   int totSteps = eSteps + rSteps;
-  int block = 1;
+  int block = 100;
   int nBlock = 0;
   int perSkip = totSteps/10;
   cout << "\nRunning Simulation:\n";
-  for(unsigned int t = 0; t < totSteps; t++) {
+
+  // Start Timer
+  time_t start, end;
+  time (&start);
+  time (&end);
+  double timeDif = difftime (end,start);
+
+  for(unsigned int n = 0; n < totSteps; n++) {
 
     // Verlet Step
     if (useStage) path.takeStepStage();
@@ -144,7 +151,7 @@ int main (int argc, char* argv[])
     else path.takeStep();
 
     // Compute and Update Values
-    if (t > eSteps-1) {
+    if (n > eSteps-1) {
     
       // Scalars
       if (measureScalars) {
@@ -164,9 +171,13 @@ int main (int argc, char* argv[])
       // Output and Reset Values      
       if ((t%block)==0) {
          
+        // Timer
+        time (&end);
+        timeDif = difftime (end,start);
+
         // Scalars
         if (measureScalars) {
-          scalarTrace << t-eSteps << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << " " << BS/block << "\n"; 
+          scalarTrace << timeDif << " "  << n-eSteps << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << " " << BS/block << "\n"; 
           PE = 0.0;
           VE = 0.0;
           R = 0.0;
@@ -198,7 +209,7 @@ int main (int argc, char* argv[])
     }
     
     // Percentage Complete
-    if((t%perSkip)==0) cout << 100.0*t/totSteps << "%\n";
+    if((n%perSkip)==0) cout << 100.0*n/totSteps << "%\n";
   }
   
   // Close files
