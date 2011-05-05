@@ -17,6 +17,15 @@ void Paths::initStaging()
   }
   RtoUStage();
 
+  // Momenta
+  field<rowvec> Q = P;
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    P(iPart, 0) = Q(iPart, 0);
+    for (unsigned int iBead = nBead-1; iBead > 0; iBead -= 1) {
+      P(iPart, iBead) = Q(iPart, iBead) - ((1.0*iBead)/(iBead + 1.0))*Q(iPart, bL(iBead+1)) - (1.0/(iBead + 1.0))*P(iPart, 0);
+    }  
+  }
+
   // Forces
   UpdateFStage();
 }
@@ -60,14 +69,14 @@ void Paths::UtoRStage()
   }
 }
 
-// Assign actual positions, going from ui's to xi's
+// Assign staging positions, going from xi's to ui's
 // See eq 12.6.6, Ref 2
 void Paths::RtoUStage()
 {
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     U(iPart, 0) = R(iPart, 0);
     for (unsigned int iBead = nBead-1; iBead > 0; iBead -= 1) {
-      U(iPart, iBead) = R(iPart, iBead) + ((1.0*iBead)/(iBead + 1.0))*R(iPart, bL(iBead+1)) + (1.0/(iBead + 1.0))*R(iPart, 0);
+      U(iPart, iBead) = R(iPart, iBead) - ((1.0*iBead)/(iBead + 1.0))*R(iPart, bL(iBead+1)) - (1.0/(iBead + 1.0))*U(iPart, 0);
     }  
   }
 }

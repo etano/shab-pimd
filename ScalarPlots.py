@@ -35,7 +35,7 @@ for i in range(0, len(inputFile)):
       print "\nReading data from " + scalarFilePath + "."
       (myArray, myArrayHeadings) = ReadData.loadAscii(scalarFilePath)
       scalarData[i].append(CalcStatistics.getAndOutputStats(myArray, myArrayHeadings))
-      Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
+      #Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
 
 
 
@@ -79,7 +79,10 @@ for i in range(0, len(col[0])):
   for j in range(0, len(col)):
     # For every input file 
     plt.errorbar(beta[j], col[j][i][0], col[j][i][3], label=inputFileLabel[j])
-  plt.legend()
+  leg = plt.legend(loc='best')
+  # matplotlib.text.Text instances
+  for t in leg.get_texts():
+      t.set_fontsize('xx-small')    # the legend text fontsize
   plt.suptitle(myArrayHeadings[i+1] + " vs Beta", fontsize=12)
   plt.savefig("data/figures/" + myArrayHeadings[i+1] + "vBeta" + fileExtension + ".png")
   plt.clf()

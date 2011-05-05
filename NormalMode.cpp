@@ -37,6 +37,17 @@ void Paths::initNormalMode()
     }
   }
   RtoWNormal();
+  
+  // Momenta
+  field<rowvec> Q = P;
+  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+      for (unsigned int jBead = 0; jBead < nBead; jBead += 1) {
+        P(iPart,iBead) += NormO(jBead,iBead) * Q(iPart,iBead);
+      }
+      P(iPart,iBead) *= oneOvernBead;
+    }
+  }
 
   // Forces
   UpdateFNormal();
@@ -92,6 +103,7 @@ void Paths::RtoWNormal()
       for (unsigned int jBead = 0; jBead < nBead; jBead += 1) {
         W(iPart,iBead) += NormO(jBead,iBead) * R(iPart,jBead);
       }
+      W(iPart,iBead) *= oneOvernBead;
     }
   }
 }

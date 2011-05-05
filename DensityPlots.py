@@ -3,16 +3,20 @@ import Plotting
 import CalcStatistics
 from numpy import *
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import *
+from matplotlib.pyplot import * 
+from histogram import *
 import sys
 
 # Number of Bins
 nBins = str(sys.argv[1])
 
+# Output Figure Label
+outputLabel = str(sys.argv[2])
+
 # Input File
 inputFile = []
-for i in range(0, len(sys.argv)-2):  
-  inputFileName = "inputs/" + str(sys.argv[i+2])
+for i in range(0, len(sys.argv)-3):  
+  inputFileName = "inputs/" + str(sys.argv[i+3])
   inputFile.append([])
   inputFile[i] = open(inputFileName,'r')
 
@@ -47,11 +51,14 @@ for i in range(0, len(inputFile)):
   # For every input file 
   for j in range(0, len(RDenData[i])):
     # For every line in the input file
-    plt.hist(RDenData[i][j], int(nBins), normed=True, label=inputFileLabel[i])
-plt.legend()
+    plt.hist(RDenData[i][j], int(nBins), normed=True, histtype='step', label=inputFileLabel[i])
+leg = plt.legend(loc='best')
+# matplotlib.text.Text instances
+for t in leg.get_texts():
+    t.set_fontsize('xx-small')    # the legend text fontsize
 plt.suptitle("Density", fontsize=12)
-plt.savefig("data/figures/RDen-" + fileExtension + ".png")
+plt.savefig("data/figures/RDen-" + outputLabel + ".png")
 plt.clf()
-print "\nPlot data/figures/RDen-" + fileExtension + ".png Generated!"
+print "\nPlot data/figures/RDen-" + outputLabel + ".png Generated!"
 
 print "\nDone.\n"
