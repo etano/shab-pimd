@@ -90,7 +90,7 @@ int main (int argc, char* argv[])
   cout << "\nOutputting scalar data to " << scalarFile << ".\n";
   fstream scalarTrace;
   scalarTrace.open (scalarFile.c_str(), ios::out | ios::trunc);
-  scalarTrace << "t n PE VE R R2 BS\n";
+  scalarTrace << "n t PE VE R R2 BS\n";
   
   // Initialize Scalar Observables;
   bool measureScalars = 1;
@@ -132,16 +132,14 @@ int main (int argc, char* argv[])
 
   // Main Simulation Loop
   int totSteps = eSteps + rSteps;
-  int block = 100;
+  int block = 10;
   int nBlock = 0;
   int perSkip = totSteps/10;
   cout << "\nRunning Simulation:\n";
 
-  // Start Timer
+  // Timer
   time_t start, end;
-  time (&start);
-  time (&end);
-  double timeDif = difftime (end,start);
+  double timeDif;
 
   for(unsigned int n = 0; n < totSteps; n++) {
 
@@ -152,7 +150,7 @@ int main (int argc, char* argv[])
 
     // Compute and Update Values
     if (n > eSteps-1) {
-    
+
       // Scalars
       if (measureScalars) {
         PE += path.getPE();
@@ -166,18 +164,25 @@ int main (int argc, char* argv[])
       if (measureDensity) path.UpdateDensity(RDen);
       
       // Pair Correlation
-      if(measureGrr) path.UpdateGrr(Grr);
+      if (measureGrr) path.UpdateGrr(Grr);
       
       // Output and Reset Values      
-      if ((t%block)==0) {
+      if ((n%block)==0) {
          
         // Timer
-        time (&end);
-        timeDif = difftime (end,start);
+        if (!nBlock) {
+          timeDif = 0.0;
+          start = clock();
+        }
+        else {
+          end = clock();
+          timeDif = end - start;
+          start = end;
+        }
 
         // Scalars
         if (measureScalars) {
-          scalarTrace << timeDif << " "  << n-eSteps << " " << PE/block << " " << VE/block << " " << R/block << " " << R2/block << " " << BS/block << "\n"; 
+          scalarTrace << n-eSteps << " " << timeDif << " "  << PE/block << " " << VE/block << " " << R/block << " " << R2/block << " " << BS/block << "\n"; 
           PE = 0.0;
           VE = 0.0;
           R = 0.0;
