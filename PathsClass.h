@@ -57,7 +57,7 @@ private:
   field<rowvec> R; // Positions R
   field<rowvec> P; // Momenta
   field<rowvec> F; // Force
-  field<rowvec> Vint; // Interacting Potential
+  mat Vint; // Interacting Potential
   field<rowvec> GradVint; // Interacting Potential Gradient
     
   // Periodic Boundary Conditions
@@ -75,8 +75,9 @@ private:
 	double ecut; // Energy offset due to cut off
 	double e0;  // Strength of LJ interaction
 	double r0;  // Length Scale of LJ interaction
-  void UpdateGradVint(); // Update Gradient of Interacting Potential
-  rowvec InteractionForce(rowvec&  dRij ); // Get Interaction Force
+  void UpdateVint(); // Update Interacting Potential and Gradient
+  rowvec InteractionForce( rowvec&  dRij ); // Get Interaction Force
+  double InteractionPotential( const double  dRij ); // Get Interaction Potential
   
   // Molecular Dynamics Functions
   void InitR(); // Initialize R

@@ -39,7 +39,7 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   nDnPartnBeadOver2Beta = 1.0*nD*nPart*nBead/(2.0*beta); 
 
   // Lennard-Jones-Constants
-	rcut = 0; // Set to system Size Needs to be adjusted for Periodic Boundary Calculation
+	rcut = L; // Set to system Size Needs to be adjusted for Periodic Boundary Calculation
 	r0 = 1; // Length scale of interaction
 	e0 = 1; // Strength of interaction
 	ecut = 0; // Adjust here  
@@ -75,13 +75,16 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       P(iPart,iBead).zeros(nD);
-      for (unsigned int iD = 0; iD < nD; iD += 1) {
-        P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
-      }
+      //for (unsigned int iD = 0; iD < nD; iD += 1) {
+      //  P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
+      //}
     }    
   }
 
   // Interaction 
+  Vint.set_size(nPart,nBead);
+  Vint.zeros();
+
   GradVint.set_size(nPart,nBead);
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
@@ -225,7 +228,7 @@ rowvec Paths::Displacement(rowvec& Ri, rowvec& Rj)
 // V = (1/2) m w^2 r^2
 double Paths::getV( const int iPart, const int iBead )
 {
-  return 0.5 * mw2 * dot( R(iPart,iBead) , R(iPart,iBead) );
+  return 0.5 * mw2 * dot( R(iPart,iBead) , R(iPart,iBead) ) + Vint(iPart, iBead);
 }
 
 // Get Derivative of Potential for iPart, iBead
@@ -245,20 +248,27 @@ rowvec Paths::getgradV( const int iPart, const int iBead )
 }
 
 // Update Gradient of Interacting Potential
-void Paths::UpdateGradVint()
+void Paths::UpdateVint()
 {
-  rowvec dRij, gVint;
+  rowvec dRij, GradVintTemp;
+  double VintTemp;
   for (unsigned int iBead = 0; iBead < nBead; iBead +=1) {
     for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
       GradVint(iPart,iBead).zeros();
+      Vint(iPart,iBead) = 0.0;
     }
     
     for (unsigned int iPart = 0; iPart < nPart-1; iPart += 1) {
       for (unsigned int jPart = iPart+1; jPart < nPart; jPart += 1) {
         dRij = Displacement( R(iPart,iBead) , R(jPart,iBead) );
-        gVint = -1.0 * InteractionForce(dRij);
-        GradVint(iPart,iBead) += gVint;
-        GradVint(jPart,iBead) -= gVint;
+        // Grad Vint
+        GradVintTemp = -1.0 * InteractionForce(dRij);
+        GradVint(iPart,iBead) += GradVintTemp;
+        GradVint(jPart,iBead) -= GradVintTemp;
+        // Vint
+        VintTemp = InteractionPotential( norm(dRij,2) );
+        Vint(iPart,iBead) += 0.5 * VintTemp;
+        Vint(jPart,iBead) += 0.5 * VintTemp;
       }
     }
   }
@@ -267,21 +277,40 @@ void Paths::UpdateGradVint()
 //Calculate Pair-Potential-Force; 1-LJ, 2-Coulomb, 
 rowvec Paths::InteractionForce( rowvec& dRij )
 {
-  if (interaction==0) {
-    return 0.0 * dRij;
-  }
+  if (interaction==0) return 0.0 * dRij;
 
-	double r2 = norm(dRij,2); 
-	if (interaction==1){
+	double r = norm(dRij,2); 
+	double r2 = r*r; 
+	if (interaction==1) {
+    double r02i = 1.0/(r0*r0);
+		r2 = r2*r02i;  //Distance in units of r0
+		double r2i = 1.0/r2; //Inverse Distance
+		double r6i = r2i*r2i*r2i;
+    
+		double ff = 48.0*e0*r2i*r6i*(r6i-0.5)*r02i;
+		return ff * dRij;
+	}
+	if (interaction == 2) {
+		return -(e0/r2/r) * dRij;
+	}
+}
+
+//Calculate Pair-Potential; 1-LJ, 2-Coulomb, 
+double Paths::InteractionPotential( const double dRij )
+{
+  if (interaction==0) return 0.0;
+
+  double r2 = dRij * dRij;
+	if (interaction==1) {
 		r2 = r2/r0;  //Distance in units of r0
 		double r2i = 1.0/r2; //Inverse Distance
 		double r6i = r2i*r2i*r2i;
     
-		double ff = 48.0*e0*r2i*r6i*(r6i-0.5);
-		return ff * dRij;
+		double en = 4.0*e0*r6i*(r6i-1.0);
+		return en * dRij;
 	}
-	if (interaction == 2){
-		return -e0/r2/r2/r2 * dRij;
+	if (interaction == 2) {
+		return e0/dRij;
 	}
 }
 
@@ -318,7 +347,7 @@ void Paths::takeStep()
 // Update the Force for every bead of every particle
 void Paths::UpdateF()
 {
-  UpdateGradVint();
+  UpdateVint();
 
   rowvec dR1, dR2;
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
