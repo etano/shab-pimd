@@ -19,11 +19,13 @@ for i in range(0, len(sys.argv)-2):
 # Input Data
 inputFileLabel = []
 scalarData = []
+beta = []
 for i in range(0, len(inputFile)):
   # For every input file
   firstLine = True
   inputFileLabel.append([])
   scalarData.append([])
+  beta.append([])
   for line in inputFile[i]:
     if firstLine:
     # First line label
@@ -32,6 +34,15 @@ for i in range(0, len(inputFile)):
     else:
     # For every beta point
       inputLine = str(line)
+      entry = ''
+      params = []
+      for k in range(len(line)):
+        if line[k]!=' ':
+          entry += line[k]
+        else:
+          params += [entry]
+          entry=''
+      beta[i].append(float(params[3]))
       fileExtension = inputLine.replace(' ','-')
       fileExtension = fileExtension.replace('\n','')
       scalarFilePath = "data/traces/scalarTrace-" + fileExtension + ".dat"    
@@ -39,22 +50,6 @@ for i in range(0, len(inputFile)):
       (myArray, myArrayHeadings) = ReadData.loadAscii(scalarFilePath)
       scalarData[i].append(CalcStatistics.getAndOutputStats(myArray, myArrayHeadings))
       #Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
-
-
-
-# THIS IS HARD CODED
-# NEEDS TO BE CHANGED FOR X-VALUES
-# OTHER THAN 1 - 10
-
-# Beta Values
-beta = []
-for i in range(0, len(scalarData)): 
-  # For every input file 
-  beta.append([])
-  for j in range(0, len(scalarData[i])):
-    # For every beta point
-    beta[i].append(j+1)
-  beta[i].reverse()
 
 print "\nSorting Data..."
 # Rotate Data into Columns
@@ -103,7 +98,6 @@ for i in range(0, len(col[0])):
     # For every input file 
     plt.plot(beta[j], col[j][i][3], label=inputFileLabel[j])
   leg = plt.legend(loc='best')
-  # matplotlib.text.Text instances
   for t in leg.get_texts():
       t.set_fontsize('xx-small')    # the legend text fontsize
   plt.suptitle("Error in " + myArrayHeadings[i+1] + " vs Beta", fontsize=12)

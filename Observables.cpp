@@ -129,7 +129,7 @@ void Paths::UpdateGrr(vec& Grr, const double dBin)
     for (unsigned int jPart = iPart+1; jPart < nPart; jPart += 1) {
       Ri = getR(iPart);
       Rj = getR(jPart);
-      D += Distance( Ri , Rj );
+      D = Distance( Ri , Rj );
       if (D < L) {
         iBin = int(D/dBin);
         Grr(iBin) += 2;
