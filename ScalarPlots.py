@@ -1,6 +1,7 @@
 import ReadData 
 import Plotting
 import CalcStatistics
+import math
 from numpy import *
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import *
@@ -34,6 +35,7 @@ for i in range(0, len(inputFile)):
     else:
     # For every beta point
       inputLine = str(line)
+
       entry = ''
       params = []
       for k in range(len(line)):
@@ -43,6 +45,10 @@ for i in range(0, len(inputFile)):
           params += [entry]
           entry=''
       beta[i].append(float(params[3]))
+      nPart = float(params[0])
+      nD = float(params[1])
+      interaction = float(params[11])
+
       fileExtension = inputLine.replace(' ','-')
       fileExtension = fileExtension.replace('\n','')
       scalarFilePath = "data/traces/scalarTrace-" + fileExtension + ".dat"    
@@ -79,6 +85,18 @@ for i in range(0, len(col[0])):
   for j in range(0, len(col)):
     # For every input file 
     plt.errorbar(beta[j], col[j][i][0], col[j][i][3], label=inputFileLabel[j])
+
+  # Exact Values
+  x = arange(1.0,10.0,0.01)
+  if (interaction==0):  
+    if ((myArrayHeadings[i+1]=="PE") or (myArrayHeadings[i+1]=="VE")):  
+      y =  nPart*nD*0.5/tanh(x/2.0)
+      plt.plot(x, y, label="Exact")
+    if (myArrayHeadings[i+1]=="R2"):  
+      y = nD*0.5/tanh(x/2.0)
+      plt.plot(x, y, label="Exact")
+
+  # Legend
   leg = plt.legend(loc='best')
   # matplotlib.text.Text instances
   for t in leg.get_texts():
