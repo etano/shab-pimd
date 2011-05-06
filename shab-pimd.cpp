@@ -138,7 +138,7 @@ int main (int argc, char* argv[])
 
   // Main Simulation Loop
   int totSteps = eSteps + rSteps;
-  int block = 10;
+  int block = rSteps/100;
   int nBlock = 0;
   int perSkip = totSteps/10;
   cout << "\nRunning Simulation:\n";
