@@ -61,9 +61,9 @@ void statsScalars ( const char* scalarFile , int nblock ) {
   std::ifstream scalarTrace;
 
   int count; 
-  double t, PE, VE, R, R2, BS;
-  std::string st, sPE, sVE, sR, sR2, sBS;
-  std::vector<double> tvec, PEvec, VEvec, Rvec, R2vec, BSvec;
+  double n, t, PE, VE, R, R2, BS;
+  std::string sn, st, sPE, sVE, sR, sR2, sBS;
+  std::vector<double> nvec, tvec, PEvec, VEvec, Rvec, R2vec, BSvec;
     
   scalarTrace.open(scalarFile);
   
@@ -71,12 +71,14 @@ void statsScalars ( const char* scalarFile , int nblock ) {
   while ( count < nblock ) { //!energyTrace.eof() ) { // keep reading until end-of-file !indata.eof()
     
     if (count > 0) {
+      scalarTrace >> n; 
       scalarTrace >> t; 
       scalarTrace >> PE;
       scalarTrace >> VE;
       scalarTrace >> R;
       scalarTrace >> R2;
       scalarTrace >> BS;
+      nvec.push_back(n);
       tvec.push_back(t);
       PEvec.push_back(PE);
       VEvec.push_back(VE);
@@ -84,6 +86,7 @@ void statsScalars ( const char* scalarFile , int nblock ) {
       R2vec.push_back(R2);
       BSvec.push_back(BS);      
     } else {
+      scalarTrace >> sn;
       scalarTrace >> st; 
       scalarTrace >> sPE;
       scalarTrace >> sVE;
@@ -96,6 +99,7 @@ void statsScalars ( const char* scalarFile , int nblock ) {
   }    
   
   std::cout << "\nScalar Estimates:\n";
+  std::cout << "t: " << getMean(tvec) << " (" << getError(tvec) << ")\n";
   std::cout << "PE: " << getMean(PEvec) << " (" << getError(PEvec) << ")\n";
   std::cout << "VE: " << getMean(VEvec) << " (" << getError(VEvec) << ")\n";
   std::cout << "R: " << getMean(Rvec) << " (" << getError(Rvec) << ")\n";

@@ -147,8 +147,8 @@ void Paths::InitR()
 
   int nCube = 1;
   while (pow(nCube,nD) < nPart) nCube += 1;
-  double rs = r0;//nPart*r0/(1.0*nCube);
-  double rOffset = (L - rs)/2.0;
+  double rs = nPart*1.0/(1.0*nCube);
+  double rOffset = (1.0 - rs)/2.0;
 
   int iPart;
   for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
