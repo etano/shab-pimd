@@ -199,7 +199,7 @@ int main (int argc, char* argv[])
         // Density
         if (measureDensity) {
           for (unsigned int iBin = 0; iBin < nBin; iBin += 1) {
-            RDenTrace << RDen(iBin) << " ";
+            RDenTrace << RDen(iBin)/block << " ";
             RDen(iBin) = 0.0;
           }
           RDenTrace << "\n";
@@ -208,7 +208,7 @@ int main (int argc, char* argv[])
         // Pair Correlation
         if (measureGrr) {
           for (unsigned int iBin = 0; iBin < nBin; iBin += 1) {
-            GrrTrace << Grr(iBin) << " ";
+            GrrTrace << Grr(iBin)/block << " ";
             Grr(iBin) = 0.0;
           }
           GrrTrace << "\n";
