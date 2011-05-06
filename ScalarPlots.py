@@ -6,10 +6,13 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import *
 import sys
 
+# Output Figure Label
+outputLabel = str(sys.argv[1])
+
 # Input File
 inputFile = []
-for i in range(0, len(sys.argv)-1):  
-  inputFileName = "inputs/" + str(sys.argv[i+1])
+for i in range(0, len(sys.argv)-2):  
+  inputFileName = "inputs/" + str(sys.argv[i+2])
   inputFile.append([])
   inputFile[i] = open(inputFileName,'r')
 
@@ -35,7 +38,7 @@ for i in range(0, len(inputFile)):
       print "\nReading data from " + scalarFilePath + "."
       (myArray, myArrayHeadings) = ReadData.loadAscii(scalarFilePath)
       scalarData[i].append(CalcStatistics.getAndOutputStats(myArray, myArrayHeadings))
-      Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
+      #Plotting.makePlots(myArray, myArrayHeadings, fileExtension)
 
 
 
@@ -51,9 +54,9 @@ for i in range(0, len(scalarData)):
   for j in range(0, len(scalarData[i])):
     # For every beta point
     beta[i].append(j+1)
+  beta[i].reverse()
 
-
-
+print "\nSorting Data..."
 # Rotate Data into Columns
 col = []
 for i in range(0, len(scalarData)):
@@ -71,7 +74,9 @@ for i in range(0, len(scalarData)):
         col[i][j][k][l] = scalarData[i][l][j][k]
 
 # Generate Plots
-print "\nGenerating Plots:"
+print "\nGenerating Plots..."
+
+# Normal Plots
 for i in range(0, len(col[0])):
   # For every observable
   plt.xlabel("Beta")
@@ -84,8 +89,26 @@ for i in range(0, len(col[0])):
   for t in leg.get_texts():
       t.set_fontsize('xx-small')    # the legend text fontsize
   plt.suptitle(myArrayHeadings[i+1] + " vs Beta", fontsize=12)
-  plt.savefig("data/figures/" + myArrayHeadings[i+1] + "vBeta" + fileExtension + ".png")
+  plt.savefig("data/figures/" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png")
   plt.clf()
-  print "\nPlot data/figures/" + myArrayHeadings[i+1] + "vBeta" + fileExtension + ".png Generated!"
+  print "\nPlot data/figures/" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png Generated!"
+
+print "\nGenerating Error Plots..."
+# Error Plots
+for i in range(0, len(col[0])):
+  # For every observable
+  plt.xlabel("Beta")
+  plt.ylabel(myArrayHeadings[i+1])
+  for j in range(0, len(col)):
+    # For every input file 
+    plt.plot(beta[j], col[j][i][3], label=inputFileLabel[j])
+  leg = plt.legend(loc='best')
+  # matplotlib.text.Text instances
+  for t in leg.get_texts():
+      t.set_fontsize('xx-small')    # the legend text fontsize
+  plt.suptitle("Error in " + myArrayHeadings[i+1] + " vs Beta", fontsize=12)
+  plt.savefig("data/figures/Err" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png")
+  plt.clf()
+  print "\nPlot data/figures/Err" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png Generated!"
 
 print "\nDone.\n"

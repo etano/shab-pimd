@@ -20,8 +20,8 @@ public:
   double getR2(); // Get Position Squared estimator
   double getBS(); // Get Bead Spread estimator
   rowvec getR(int iPart); // Get Position estimator for single particle
-  void UpdateDensity(field<rowvec>& RDen); // Update Density
-  void UpdateGrr(vec& Grr); // Update Pair Correlation
+  void UpdateDensity(vec& RDen, const double dBin); // Update Density
+  void UpdateGrr(vec& Grr, const double dBin); // Update Pair Correlation
   
   // Molecular Dynamics Functions
   void takeStep(); // Take a step

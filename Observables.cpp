@@ -100,26 +100,40 @@ rowvec Paths::getR( const int iPart )
 }
 
 // Density
-void Paths::UpdateDensity(field<rowvec>& RDen)
+void Paths::UpdateDensity(vec& RDen, const double dBin)
 {
+  rowvec Ri(nD);
+  double D = 0.0;
+  int iBin;
+
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    RDen(iPart) += getR(iPart);
+    Ri = getR(iPart);
+    for (unsigned int iD = 0; iD < nD; iD += 1) {
+      if (fabs(Ri(iD)) < L) {
+        iBin = int(fabs(Ri(iD))/dBin);
+        RDen(iBin) += 1;          
+      }
+    }
   }
 
 }
 
 // Pair Correlation
-void Paths::UpdateGrr(vec& Grr)
+void Paths::UpdateGrr(vec& Grr, const double dBin)
 {
-  int iPair = 0;
   rowvec Ri(nD), Rj(nD);
+  double D = 0.0;
+  int iBin;
 
   for (unsigned int iPart = 0; iPart < nPart-1; iPart += 1) {
     for (unsigned int jPart = iPart+1; jPart < nPart; jPart += 1) {
       Ri = getR(iPart);
       Rj = getR(jPart);
-      Grr(iPair) += Distance( Ri , Rj );
-      iPair += 1;
+      D += Distance( Ri , Rj );
+      if (D < L) {
+        iBin = int(D/dBin);
+        Grr(iBin) += 2;
+      }
     }
   }
   

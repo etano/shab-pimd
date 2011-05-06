@@ -26,6 +26,7 @@ int main (int argc, char* argv[])
   double beta; // Inverse temperature (kb = 1)
   double dt; // Time step of simulation
   double L; // Simulation box size
+  int nBin; // Number of bins per D
   int eSteps; // Number of Equilibration Sweeps
   int rSteps; // Number of Recording Sweeps
   int transformation; // Variable Transformation: 0 - None, 1 - Staging, 2 - Normal Mode
@@ -42,6 +43,7 @@ int main (int argc, char* argv[])
     inputStream >> beta;
     inputStream >> dt;
     inputStream >> L;
+    inputStream >> nBin;
     inputStream >> eSteps;
     inputStream >> rSteps;
     inputStream >> transformation;
@@ -64,6 +66,7 @@ int main (int argc, char* argv[])
   cout << "Inverse temperature (beta): " << beta << "\n";
   cout << "Simulation Time Step: " << dt << "\n";
   cout << "Simulation Box Size: " << L << "\n";
+  cout << "# of Bins per D: " << nBin << "\n";
   cout << "Number of Equilibration Sweeps: " << eSteps << "\n";
   cout << "Number of Recording Sweeps: " << rSteps << "\n";
   cout << "Variable Transformation: " << transformation << "\n";
@@ -80,9 +83,9 @@ int main (int argc, char* argv[])
   Paths path(nPart,nD,nBead,beta,dt,L,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps);     
 
   // Form Output String
-  char outputFormat[] = "-%d-%d-%d-%3.1f-%.1g-%3.1f-%d-%d-%d-%d-%d-%d-%d-%d.dat";
+  char outputFormat[] = "-%d-%d-%d-%3.1f-%.1g-%3.1f-%d-%d-%d-%d-%d-%d-%d-%d-%d.dat";
   char outputFile[sizeof outputFormat];
-  sprintf(outputFile,outputFormat,nPart,nD,nBead,beta,dt,L,eSteps,rSteps,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps); 
+  sprintf(outputFile,outputFormat,nPart,nD,nBead,beta,dt,L,nBin,eSteps,rSteps,transformation,thermostat,interaction,nNH,SYOrder,nNHsteps); 
   string outputString(outputFile);
 
   // Scalar Observables Output File
@@ -100,17 +103,22 @@ int main (int argc, char* argv[])
   double R2 = 0.0;
   double BS = 0.0;
 
+  // Binning
+  double dBin = L*1.0/nBin;
+
   // Pair Correlation Output File
   string GrrFile = "data/traces/GrrTrace" + outputString;
   cout << "\nOutputting Grr data to " << GrrFile << "\n";
   fstream GrrTrace;
   GrrTrace.open (GrrFile.c_str(), ios::out | ios::trunc);
-  GrrTrace << "Grr\n";
+  for (unsigned int iBin = 0; iBin < nBin; iBin += 1) {
+    GrrTrace << iBin*dBin + dBin/2.0 << " ";
+  }
+  GrrTrace << "\n";
 
   // Initialize Pair Correlation
   bool measureGrr = 1;
-  const int nPair = choose(nPart, 2); // nPart choose 2
-  vec Grr(nPair);
+  vec Grr(nBin);
   Grr.zeros();
 
   // Density Output File
@@ -118,17 +126,15 @@ int main (int argc, char* argv[])
   cout << "\nOutputting Density data to " << RDenFile << "\n";
   fstream RDenTrace;
   RDenTrace.open (RDenFile.c_str(), ios::out | ios::trunc);
-  for (unsigned int iD = 0; iD < nD; iD += 1) {
-    RDenTrace << "r ";
+  for (unsigned int iBin = 0; iBin < nBin; iBin += 1) {
+    RDenTrace << iBin*dBin + dBin/2.0 << " ";
   }
   RDenTrace << "\n";
 
   // Initialize Density
   bool measureDensity = 1;
-  field<rowvec> RDen(nPart);
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    RDen(iPart).zeros(nD);
-  }
+  vec RDen(nBin);
+  RDen.zeros();
 
   // Main Simulation Loop
   int totSteps = eSteps + rSteps;
@@ -161,10 +167,10 @@ int main (int argc, char* argv[])
       }
 
       // Density
-      if (measureDensity) path.UpdateDensity(RDen);
+      if (measureDensity) path.UpdateDensity(RDen,dBin);
       
       // Pair Correlation
-      if (measureGrr) path.UpdateGrr(Grr);
+      if (measureGrr) path.UpdateGrr(Grr,dBin);
       
       // Output and Reset Values      
       if ((n%block)==0) {
@@ -192,21 +198,20 @@ int main (int argc, char* argv[])
       
         // Density
         if (measureDensity) {
-          for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-            for (unsigned int iD = 0; iD < nD; iD += 1) {
-              RDenTrace << RDen(iPart)(iD)/block << " ";
-            }
-            RDenTrace << "\n";
-            RDen(iPart).zeros();
+          for (unsigned int iBin = 0; iBin < nBin; iBin += 1) {
+            RDenTrace << RDen(iBin) << " ";
+            RDen(iBin) = 0.0;
           }
+          RDenTrace << "\n";
         }
 
         // Pair Correlation
         if (measureGrr) {
-          for (unsigned int iPair = 0; iPair < nPair; iPair += 1) {
-            GrrTrace << Grr(iPair)/block << "\n";
+          for (unsigned int iBin = 0; iBin < nBin; iBin += 1) {
+            GrrTrace << Grr(iBin) << " ";
+            Grr(iBin) = 0.0;
           }
-          Grr.zeros();
+          GrrTrace << "\n";
         }         
       
         nBlock += 1;

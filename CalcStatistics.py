@@ -33,8 +33,11 @@ def Sigma(g):
   return sqrt(Var(g))
   
 def Error(g):
-  kappa = Kappa(g,Mean(g),Var(g))
+  kappa = Kappa(g,Mean(g),Var(g),len(g))
   return Sigma(g)/sqrt(len(g)/kappa)
+  
+def StdError(g):
+  return Sigma(g)/sqrt(len(g))
 
 def stats(g):
   N = len(g)
