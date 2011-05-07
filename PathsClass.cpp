@@ -75,9 +75,9 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       P(iPart,iBead).zeros(nD);
-      //for (unsigned int iD = 0; iD < nD; iD += 1) {
-      //  P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
-      //}
+      for (unsigned int iD = 0; iD < nD; iD += 1) {
+        P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
+      }
     }    
   }
 
