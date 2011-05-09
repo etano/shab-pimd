@@ -1,0 +1,47 @@
+
+Running simulation 6 from inputs/nointerNoseNone.in ( Non-interacting, Nose Hoover, No transformation ) ...
+
+Number of Particles: 2
+Dimension: 1
+Number of Time Slices: 32
+Inverse temperature (beta): 5
+Simulation Time Step: 0.01
+Simulation Box Size: 10
+# of Bins per D: 100
+Number of Equilibration Sweeps: 1000
+Number of Recording Sweeps: 1000000
+Variable Transformation: 0
+Thermostat: 1
+Interaction: 0
+Nose-Hoover Length: 3
+Order of Suzuki-Yoshida Factorization: 4
+Number of Nose-Hoover Steps: 5
+
+Outputting scalar data to data/traces/scalarTrace-2-1-32-5.0-0.01-10.0-100-1000-1000000-0-1-0-3-4-5.dat.
+
+Outputting Grr data to data/traces/GrrTrace-2-1-32-5.0-0.01-10.0-100-1000-1000000-0-1-0-3-4-5.dat
+
+Outputting Density data to data/traces/RDenTrace-2-1-32-5.0-0.01-10.0-100-1000-1000000-0-1-0-3-4-5.dat
+
+Running Simulation:
+0.0000e+00%
+1.0000e+01%
+2.0000e+01%
+3.0000e+01%
+4.0000e+01%
+5.0000e+01%
+6.0000e+01%
+7.0000e+01%
+8.0000e+01%
+9.0000e+01%
+
+Scalar Estimates:
+t: 1.3294e+07 (1.3566e+05)
+PE: 1.0102e+00 (1.5332e-02)
+VE: 9.9126e-01 (1.1782e-02)
+R: -1.4518e-02 (1.5088e-02)
+R2: 5.0879e-01 (8.7289e-03)
+BS: 4.4241e-01 (2.2484e-03)
+
+Done.
+
