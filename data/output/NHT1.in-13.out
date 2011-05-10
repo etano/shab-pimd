@@ -1,0 +1,48 @@
+
+Running simulation 13 from inputs/NHT1.in ( Nose Hoover Testing ) ...
+
+Number of Particles: 1
+Dimension: 1
+Number of Time Slices: 32
+Inverse temperature (beta): 1
+Simulation Time Step: 0.1
+Simulation Box Size: 1
+# of Bins per D: 1
+Number of Equilibration Sweeps: 1
+Number of Recording Sweeps: 1000000
+Variable Transformation: 1
+Thermostat: 1
+Interaction: 0
+Nose-Hoover Length: 4
+Order of Suzuki-Yoshida Factorization: 4
+Number of Nose-Hoover Steps: 3
+
+Outputting scalar data to data/traces/scalarTrace-1-1-32-1.0-0.1-1.0-1-1-1000000-1-1-0-4-4-3.dat.
+
+Outputting Grr data to data/traces/GrrTrace-1-1-32-1.0-0.1-1.0-1-1-1000000-1-1-0-4-4-3.dat
+
+Outputting Density data to data/traces/RDenTrace-1-1-32-1.0-0.1-1.0-1-1-1000000-1-1-0-4-4-3.dat
+
+Running Simulation:
+0.0000e+00%
+1.0000e+01%
+2.0000e+01%
+3.0000e+01%
+4.0000e+01%
+5.0000e+01%
+6.0000e+01%
+7.0000e+01%
+8.0000e+01%
+9.0000e+01%
+1.0000e+02%
+
+Scalar Estimates:
+t: 6.6939e+06 (6.8323e+04)
+PE: -2.6099e-01 (6.5808e-03)
+VE: 1.0900e+00 (3.0241e-03)
+R: 1.9153e-03 (4.6786e-03)
+R2: 1.0991e+00 (5.8813e-03)
+BS: 2.3866e-01 (3.0853e-04)
+
+Done.
+

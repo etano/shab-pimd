@@ -85,7 +85,7 @@ void Paths::RtoUStage()
 // See eqs 12.6.12 & 12.6.13, Ref 2
 void Paths::UpdateFStage()
 {
-  UpdateVint();
+  if(interaction) UpdateVint();
 
   rowvec gradVStageA(nD), gradVStageB(nD);
 

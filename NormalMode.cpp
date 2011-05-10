@@ -112,7 +112,7 @@ void Paths::RtoWNormal()
 // See eqs 12.6.20, Ref 2
 void Paths::UpdateFNormal()
 {
-  UpdateVint();
+  if(interaction) UpdateVint();
 
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
   

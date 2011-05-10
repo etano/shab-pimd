@@ -61,14 +61,14 @@ private:
   field<rowvec> GradVint; // Interacting Potential Gradient
     
   // Periodic Boundary Conditions
-  void PutInBox( rowvec& Ri );
-  double Distance( rowvec& Ri , rowvec& Rj );
-  rowvec Displacement( rowvec& Ri , rowvec& Rj );  
+  inline void PutInBox( rowvec& Ri );
+  inline double Distance( rowvec& Ri , rowvec& Rj );
+  inline rowvec Displacement( rowvec& Ri , rowvec& Rj );  
   
   // Potential Functions
-  double getV( const int iPart, const int iBsead ); // Get Potential for iPart, iBead
-  double getdV( const int iPart, const int iBead ); // Get Derivative of Potential for iPart, iBead
-  rowvec getgradV( const int iPart, const int iBead ); // Get Gradient of Potential for iPart, iBead
+  inline double getV( const int iPart, const int iBsead ); // Get Potential for iPart, iBead
+  inline double getdV( const int iPart, const int iBead ); // Get Derivative of Potential for iPart, iBead
+  inline rowvec getgradV( const int iPart, const int iBead ); // Get Gradient of Potential for iPart, iBead
 
   // Interaction	
   double rcut;  // Cut off Radius for PairPotential
@@ -88,6 +88,7 @@ private:
   
   // Masses
   rowvec M;
+  rowvec oneOverM;
   
   // Bead Loop
   ivec bL; 
@@ -112,10 +113,11 @@ private:
   // Nose-Hoover Thermostat
   bool useNH; // 1 - Use Nose-Hoover, 0 - Don't use Nose-Hoover
   int nNH; // Length of Nose-Hoover chain
-  field<rowvec> NHR; // Positions (Nose-Hoover)
-  field<rowvec> NHP; // Momenta (Nose-Hoover)
-  field<rowvec> NHF; // Forces (Nose-Hoover)
+  cube NHR; // Positions (Nose-Hoover)
+  cube NHP; // Momenta (Nose-Hoover)
+  cube NHF; // Forces (Nose-Hoover)
   rowvec NHM; // Masses (Nose-Hoover)
+  rowvec oneOverNHM; // Inverse Masses (Nose-Hoover)
   int SYOrder; // Order of Suzuki-Yoshida factorization
   int nSY; // Number of Suzuki-Yoshida weights
   int nNHsteps; // Number of Nose-Hoover Steps
@@ -133,5 +135,54 @@ private:
   void LangevinThermostat(); // Thermostatting function
 
 };
+
+////////////////////////////////////////////////////
+/* Routines to ensure periodic boundary coditions */
+////////////////////////////////////////////////////
+
+inline void Paths::PutInBox(rowvec& Ri)
+{  
+  /*for(unsigned int i = 0; i < nD; i++) {
+    while(Ri(i) > L/2.0) Ri(i) -= L;
+    while(Ri(i) < -L/2.0) Ri(i) += L;
+  }*/
+}
+  
+inline double Paths::Distance(rowvec& Ri, rowvec& Rj)
+{  
+  return norm( Displacement(Ri, Rj) , 2 );  
+}
+  
+inline rowvec Paths::Displacement(rowvec& Ri, rowvec& Rj)
+{
+  //rowvec dR = Ri - Rj;  
+  //PutInBox(dR);  
+  //return dR;
+  return Ri - Rj;
+}
+
+// Get Potential for iPart, iBead
+// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
+// V = (1/2) m w^2 r^2
+inline double Paths::getV( const int iPart, const int iBead )
+{
+  return 0.5 * mw2 * dot( R(iPart,iBead) , R(iPart,iBead) ) + Vint(iPart, iBead);
+}
+
+// Get Derivative of Potential for iPart, iBead
+// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
+// dV/dr = m w^2 r
+inline double Paths::getdV( const int iPart, const int iBead )
+{
+  return norm( getgradV(iPart,iBead) , 2 );
+}
+
+// Get Derivative of Potential for iPart, iBead
+// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
+// dV/dr = m w^2 r
+inline rowvec Paths::getgradV( const int iPart, const int iBead )
+{
+  return mw2 * R(iPart,iBead) + GradVint(iPart,iBead);
+}
 
 #endif

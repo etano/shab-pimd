@@ -8,33 +8,17 @@ void Paths::initNoseHoover()
   NHM(0) = kT/wp2;  
   for (unsigned int iNH = 1; iNH < nNH; iNH += 1)
     NHM(iNH) = kT/wp2;
+  oneOverNHM = 1.0/NHM;
+  oneOverM = 1.0/M;
 
   // Positions (Nose-Hoover)
-  NHR.set_size(nPart,nBead);
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      NHR(iPart,iBead).zeros(nNH);
-    }
-  }
+  NHR.zeros(nPart,nBead,nNH);
 
   // Momenta (Nose-Hoover)
-  NHP.set_size(nPart,nBead);
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      NHP(iPart,iBead).zeros(nNH);
-      for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
-        NHP(iPart,iBead)(iNH) = normRand(0.0,NHM(iNH)*kT); // Maxwell-Boltzmann Distribution
-      }
-    }
-  }
+  NHP.zeros(nPart,nBead,nNH);
 
   // Forces (Nose-Hoover)
-  NHF.set_size(nPart,nBead);
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      NHF(iPart,iBead).zeros(nNH);
-    }
-  }
+  NHF.zeros(nPart,nBead,nNH);
   
   // Suzuki-Yoshida Scheme Weights (Nose-Hoover) NHd
   if (SYOrder == 4) {
@@ -69,53 +53,62 @@ void Paths::NHThermostat()
 { 
 		
   // See eqs 12.6.14 & 4.11.17, Ref 2
-  for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
-    for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
-      for (unsigned int iNHsteps = 0; iNHsteps < nNHsteps; iNHsteps += 1) {          
-        for (unsigned int iSY = 0; iSY < nSY; iSY += 1) {
-        
-          NHF(iPart,iBead)(nNH-1) = NHP(iPart,iBead)(nNH-2) * NHP(iPart,iBead)(nNH-2) / NHM(nNH-2) - kT;
-          NHP(iPart,iBead)(nNH-1) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(nNH-1);
-          
-          for (unsigned int iNH = nNH-2; iNH > 0; iNH -= 1) {
-            NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
-            NHF(iPart,iBead)(iNH) = NHP(iPart,iBead)(iNH-1) * NHP(iPart,iBead)(iNH-1) / NHM(iNH-1) - kT;
-            NHP(iPart,iBead)(iNH) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(iNH);
-            NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
-          }
-          
-          NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
-          NHF(iPart,iBead)(0) = dot( P(iPart,iBead) , P(iPart,iBead) ) / M(iBead) - nD * kT;
-          NHP(iPart,iBead)(0) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(0);
-          NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
-          
+  for (unsigned int iNHsteps = 0; iNHsteps < nNHsteps; iNHsteps += 1) {          
+    for (unsigned int iSY = 0; iSY < nSY; iSY += 1) {
+    
+      NHF.slice(nNH-1) = NHP.slice(nNH-2) % NHP.slice(nNH-2) * oneOverNHM(nNH-2) - kT;
+      NHP.slice(nNH-1) += 0.25 * NHd(iSY) * NHF.slice(nNH-1);
+      
+      for (unsigned int iNH = nNH-2; iNH > 0; iNH -= 1) {
+        NHP.slice(iNH) %= exp(-0.125 * NHd(iSY) * NHP.slice(iNH+1) * oneOverNHM(iNH+1));
+        NHF.slice(iNH) = NHP.slice(iNH-1) % NHP.slice(iNH-1) * oneOverNHM(iNH-1) - kT;
+        NHP.slice(iNH) += 0.25 * NHd(iSY) * NHF.slice(iNH);
+        NHP.slice(iNH) %= exp(-0.125 * NHd(iSY) * NHP.slice(iNH+1) * oneOverNHM(iNH+1));
+      }
+      
+      NHP.slice(0) %= exp(-0.125 * NHd(iSY) * NHP.slice(1) * oneOverNHM(1));
+      
+      for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+        for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+          NHF(iPart,iBead,0) = dot( P(iPart,iBead) , P(iPart,iBead) ) * oneOverM(iBead);
+        }
+      }
+      NHF.slice(0) -= nD * kT;
+
+      NHP.slice(0) += 0.25 * NHd(iSY) * NHF.slice(0);
+      NHP.slice(0) %= exp(-0.125 * NHd(iSY) * NHP.slice(1) * oneOverNHM(1));
+      
+      for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+        for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
           for (unsigned int iD = 0; iD < nD; iD += 1) {
-            P(iPart,iBead)(iD) *= exp(-0.5 * NHd(iSY) * NHP(iPart,iBead)(0) / NHM(0));  
+            P(iPart,iBead)(iD) *= exp(-0.5 * NHd(iSY) * NHP(iPart,iBead,0) * oneOverNHM(0));  
           }
+        }
+      }
           
-          // Don't really need this! Would only want it if checking conserved quantity.
-          //for (unsigned int iNH = 0; iNH < nNH; iNH += 1) {
-          //  NHR(iPart,iBead)(iNH) += -0.5 * NHd(iSY) * NHP(iPart,iBead)(iNH) / NHM(iNH);
-          //}
-          
-          NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
-          NHF(iPart,iBead)(0) = dot( P(iPart,iBead) , P(iPart,iBead) ) / M(iBead) - nD * kT;
-          NHP(iPart,iBead)(0) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(0);
-          NHP(iPart,iBead)(0) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(1) / NHM(1));
-          
-          for (unsigned int iNH = 1; iNH < nNH-1; iNH += 1) {
-            NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
-            NHF(iPart,iBead)(iNH) = NHP(iPart,iBead)(iNH-1) * NHP(iPart,iBead)(iNH-1) / NHM(iNH-1) - kT;
-            NHP(iPart,iBead)(iNH) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(iNH);
-            NHP(iPart,iBead)(iNH) *= exp(-0.125 * NHd(iSY) * NHP(iPart,iBead)(iNH+1) / NHM(iNH+1));
-          }
-          
-          NHF(iPart,iBead)(nNH-1) = NHP(iPart,iBead)(nNH-2) * NHP(iPart,iBead)(nNH-2) / NHM(nNH-2) - kT;
-          NHP(iPart,iBead)(nNH-1) += 0.25 * NHd(iSY) * NHF(iPart,iBead)(nNH-1);
-          
-        }   
-      }   		    
-    }  
-  }
+      NHP.slice(0) %= exp(-0.125 * NHd(iSY) * NHP.slice(1) * oneOverNHM(1));
+      
+      for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
+        for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
+          NHF(iPart,iBead,0) = dot( P(iPart,iBead) , P(iPart,iBead) ) * oneOverM(iBead);
+        }
+      }
+      NHF.slice(0) -= nD * kT;
+
+      NHP.slice(0) += 0.25 * NHd(iSY) * NHF.slice(0);
+      NHP.slice(0) %= exp(-0.125 * NHd(iSY) * NHP.slice(1) * oneOverNHM(1));
+      
+      for (unsigned int iNH = 1; iNH < nNH-1; iNH += 1) {
+        NHP.slice(iNH) %= exp(-0.125 * NHd(iSY) * NHP.slice(iNH+1) * oneOverNHM(iNH+1));
+        NHF.slice(iNH) = NHP.slice(iNH-1) % NHP.slice(iNH-1) * oneOverNHM(iNH-1) - kT;
+        NHP.slice(iNH) += 0.25 * NHd(iSY) * NHF.slice(iNH);
+        NHP.slice(iNH) %= exp(-0.125 * NHd(iSY) * NHP.slice(iNH+1) * oneOverNHM(iNH+1));
+      }
+      
+      NHF.slice(nNH-1) = NHP.slice(nNH-2) % NHP.slice(nNH-2) * oneOverNHM(nNH-2) - kT;
+      NHP.slice(nNH-1) += 0.25 * NHd(iSY) * NHF.slice(nNH-1);
+      
+    }   
+  }   
   
 }

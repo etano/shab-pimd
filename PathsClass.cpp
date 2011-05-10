@@ -75,9 +75,9 @@ Paths::Paths( const int nPartIn , const int nDIn , const int nBeadIn , const dou
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
     for (unsigned int iBead = 0; iBead < nBead; iBead += 1) {
       P(iPart,iBead).zeros(nD);
-      //for (unsigned int iD = 0; iD < nD; iD += 1) {
-      //  P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
-      //}
+      for (unsigned int iD = 0; iD < nD; iD += 1) {
+        P(iPart,iBead)(iD) = normRand(0.0,M(iBead)*kT); // Maxwell-Boltzmann Distribution
+      }
     }    
   }
 
@@ -193,59 +193,9 @@ void Paths::InitR()
 
 }
 
-
-////////////////////////////////////////////////////
-/* Routines to ensure periodic boundary coditions */
-////////////////////////////////////////////////////
-
-void Paths::PutInBox(rowvec& Ri)
-{  
-  /*for(unsigned int i = 0; i < nD; i++) {
-    while(Ri(i) > L/2.0) Ri(i) -= L;
-    while(Ri(i) < -L/2.0) Ri(i) += L;
-  }*/
-}
-  
-double Paths::Distance(rowvec& Ri, rowvec& Rj)
-{  
-  double d = norm( Displacement(Ri, Rj) , 2 );  
-  return d;
-}
-  
-rowvec Paths::Displacement(rowvec& Ri, rowvec& Rj)
-{
-  rowvec dR = Ri - Rj;  
-  PutInBox(dR);  
-  return dR;
-}
-
 /////////////////////////
 /* Potential Functions */
 /////////////////////////
-
-// Get Potential for iPart, iBead
-// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
-// V = (1/2) m w^2 r^2
-double Paths::getV( const int iPart, const int iBead )
-{
-  return 0.5 * mw2 * dot( R(iPart,iBead) , R(iPart,iBead) ) + Vint(iPart, iBead);
-}
-
-// Get Derivative of Potential for iPart, iBead
-// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
-// dV/dr = m w^2 r
-double Paths::getdV( const int iPart, const int iBead )
-{
-  return norm( getgradV(iPart,iBead) , 2 );
-}
-
-// Get Derivative of Potential for iPart, iBead
-// RIGHT NOW THIS IS ONLY FOR A HARMONIC POTENTIAL
-// dV/dr = m w^2 r
-rowvec Paths::getgradV( const int iPart, const int iBead )
-{
-  return mw2 * R(iPart,iBead) + GradVint(iPart,iBead);
-}
 
 // Update Gradient of Interacting Potential
 void Paths::UpdateVint()
@@ -347,7 +297,7 @@ void Paths::takeStep()
 // Update the Force for every bead of every particle
 void Paths::UpdateF()
 {
-  UpdateVint();
+  if(interaction) UpdateVint();
 
   rowvec dR1, dR2;
   for (unsigned int iPart = 0; iPart < nPart; iPart += 1) {
@@ -356,8 +306,8 @@ void Paths::UpdateF()
     dR1 = R(iPart,bL(1)) - R(iPart,0);
     dR2 = R(iPart,nBead-1) - R(iPart,0);
     PutInBox(dR1);
-    PutInBox(dR2);
-    F(iPart,0) = M(0)*wp2*(dR1 + dR2) - oneOvernBead*getgradV(iPart,0);
+    PutInBox(dR2);    
+    F(iPart,0) = M(0)*wp2*(dR1 + dR2) - oneOvernBead*getgradV(iPart,0);;
     
     // Do the rest of the time slices
     for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {
@@ -378,6 +328,6 @@ void Paths::UpdateF()
 void Paths::ApplyThermostat()
 {
   if (useNH) NHThermostat();
-  if (useLT) LangevinThermostat();
+  else if (useLT) LangevinThermostat();
 }
 
