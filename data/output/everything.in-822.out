@@ -1,0 +1,47 @@
+
+Running simulation 822 from inputs/everything.in ( Everything ) ...
+
+Number of Particles: 8
+Dimension: 1
+Number of Time Slices: 4
+Inverse temperature (beta): 6
+Simulation Time Step: 0.01
+Simulation Box Size: 6
+# of Bins per D: 100
+Number of Equilibration Sweeps: 1000
+Number of Recording Sweeps: 1000000
+Variable Transformation: 2
+Thermostat: 2
+Interaction: 1
+Nose-Hoover Length: 2
+Order of Suzuki-Yoshida Factorization: 4
+Number of Nose-Hoover Steps: 2
+
+Outputting scalar data to data/traces/scalarTrace-8-1-4-6.0-0.01-6.0-100-1000-1000000-2-2-1-2-4-2.dat.
+
+Outputting Grr data to data/traces/GrrTrace-8-1-4-6.0-0.01-6.0-100-1000-1000000-2-2-1-2-4-2.dat
+
+Outputting Density data to data/traces/RDenTrace-8-1-4-6.0-0.01-6.0-100-1000-1000000-2-2-1-2-4-2.dat
+
+Running Simulation:
+0.0000e+00%
+1.0000e+01%
+2.0000e+01%
+3.0000e+01%
+4.0000e+01%
+5.0000e+01%
+6.0000e+01%
+7.0000e+01%
+8.0000e+01%
+9.0000e+01%
+
+Scalar Estimates:
+t: 5.1313e+05 (5.2492e+03)
+PE: 2.1956e+01 (2.3237e-02)
+VE: 2.1514e+01 (3.2095e-02)
+R: -5.4330e-04 (2.0937e-03)
+R2: 6.3568e+00 (6.4302e-03)
+BS: 1.5096e-01 (1.3748e-03)
+
+Done.
+

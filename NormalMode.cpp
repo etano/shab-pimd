@@ -1,4 +1,4 @@
-#include "Staging.h"
+#include "NormalMode.h"
 
 // Initiate Vector Fields
 void Paths::initNormalMode()
@@ -23,6 +23,9 @@ void Paths::initNormalMode()
   vec lambda;
   eig_sym(lambda, NormO, NormA);
   NormO *= sqrt(nBead);
+  NormO.print();
+  NormA.print();
+  lambda.print();
 
   // Masses
   for (unsigned int iBead = 1; iBead < nBead; iBead += 1) {  
