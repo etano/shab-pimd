@@ -1,0 +1,47 @@
+
+Running simulation 3 from inputs/beads_210_m32_Eff.in ( Normal Mode, Nose-Hoover ) ...
+
+Number of Particles: 1
+Dimension: 1
+Number of Time Slices: 32
+Inverse temperature (beta): 9
+Simulation Time Step: 0.01
+Simulation Box Size: 6
+# of Bins per D: 100
+Number of Equilibration Sweeps: 1000
+Number of Recording Sweeps: 10000000
+Variable Transformation: 2
+Thermostat: 1
+Interaction: 0
+Nose-Hoover Length: 2
+Order of Suzuki-Yoshida Factorization: 4
+Number of Nose-Hoover Steps: 2
+
+Outputting scalar data to data/traces/scalarTrace-1-1-32-9.0-0.01-6.0-100-1000-10000000-2-1-0-2-4-2.dat.
+
+Outputting Grr data to data/traces/GrrTrace-1-1-32-9.0-0.01-6.0-100-1000-10000000-2-1-0-2-4-2.dat
+
+Outputting Density data to data/traces/RDenTrace-1-1-32-9.0-0.01-6.0-100-1000-10000000-2-1-0-2-4-2.dat
+
+Running Simulation:
+0.0000e+00%
+1.0000e+01%
+2.0000e+01%
+3.0000e+01%
+4.0000e+01%
+5.0000e+01%
+6.0000e+01%
+7.0000e+01%
+8.0000e+01%
+9.0000e+01%
+
+Scalar Estimates:
+t: 1.5769e+07 (1.6091e+05)
+PE: 4.9853e-01 (2.0151e-03)
+VE: 4.9598e-01 (1.7487e-03)
+R: -2.1350e-04 (3.1715e-04)
+R2: 4.9646e-01 (2.1978e-03)
+BS: 4.9515e-01 (7.5628e-04)
+
+Done.
+

@@ -1,0 +1,47 @@
+
+Running simulation 10 from inputs/beads_120_m32_Eff.in ( Staging, Langevin ) ...
+
+Number of Particles: 1
+Dimension: 1
+Number of Time Slices: 32
+Inverse temperature (beta): 2
+Simulation Time Step: 0.01
+Simulation Box Size: 6
+# of Bins per D: 100
+Number of Equilibration Sweeps: 1000
+Number of Recording Sweeps: 10000000
+Variable Transformation: 1
+Thermostat: 2
+Interaction: 0
+Nose-Hoover Length: 2
+Order of Suzuki-Yoshida Factorization: 4
+Number of Nose-Hoover Steps: 2
+
+Outputting scalar data to data/traces/scalarTrace-1-1-32-2.0-0.01-6.0-100-1000-10000000-1-2-0-2-4-2.dat.
+
+Outputting Grr data to data/traces/GrrTrace-1-1-32-2.0-0.01-6.0-100-1000-10000000-1-2-0-2-4-2.dat
+
+Outputting Density data to data/traces/RDenTrace-1-1-32-2.0-0.01-6.0-100-1000-10000000-1-2-0-2-4-2.dat
+
+Running Simulation:
+0.0000e+00%
+1.0000e+01%
+2.0000e+01%
+3.0000e+01%
+4.0000e+01%
+5.0000e+01%
+6.0000e+01%
+7.0000e+01%
+8.0000e+01%
+9.0000e+01%
+
+Scalar Estimates:
+t: 2.3342e+06 (2.3822e+04)
+PE: 6.4702e-01 (7.5646e-03)
+VE: 6.3845e-01 (1.2759e-03)
+R: -2.5397e-03 (3.4466e-03)
+R2: 6.5196e-01 (2.3484e-03)
+BS: 3.1542e-01 (3.8751e-04)
+
+Done.
+

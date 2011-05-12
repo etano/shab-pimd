@@ -85,6 +85,44 @@ for i in range(0, len(scalarData)):
         col[i][j][k].append([])
         col[i][j][k][l] = scalarData[i][l][j][k]
 
+# Exact 2 particle interaction
+if (interaction==1 and nPart==2):
+  beads2ExactFile = open("Evsbeta_LJ_N2.txt",'r')
+  beads2XExact = []
+  beads2YExact = []
+  for line in beads2ExactFile:
+    entry = ''
+    params = []
+    for k in range(len(line)):
+      if line[k]!=' ':
+        entry += line[k]
+      else:
+        params += [entry]
+        entry=''
+    params += [entry]
+    beads2XExact.append(float(params[0]))
+    beads2YExact.append(float(params[1]))
+
+  beads2ClassFile = open("Class_2P_LJ_0.01",'r')
+  beads2XClass = []
+  beads2YClass = []
+  for line in beads2ClassFile:
+    line = line.replace(',','')
+    entry = ''
+    params = []
+    for k in range(len(line)):
+      if line[k]!=' ':
+        entry += line[k]
+      else:
+        params += [entry]
+        entry=''
+    params += [entry]
+    beads2XClass.append(float(params[0]))
+    beads2YClass.append(float(params[1]))
+
+x0 = arange(10.0,14.0,0.01)
+y0 = -0.687602*(x0 - x0 + 1)
+
 # Generate Plots
 
 # Normal Plots
@@ -98,8 +136,8 @@ for i in range(0, len(col[0])):
     plt.errorbar(beta[j], col[j][i][0], col[j][i][3], label=inputFileLabel[j])
 
   # Exact Values
-  x = arange(1.0,10.0,0.01)
-  if (interaction==0):  
+  if (interaction==0):      
+    x = arange(1.0,10.0,0.01)
     if ((myArrayHeadings[i+1]=="PE") or (myArrayHeadings[i+1]=="VE")):  
       y =  nPart*nD*0.5/tanh(x/2.0)
       yclass = nPart*nD/x
@@ -111,15 +149,22 @@ for i in range(0, len(col[0])):
       plt.plot(x, y, label="Exact")
       plt.plot(x, yclass, label="Classical")
 
+  # Exact Values
+  if (interaction==1 and nPart==2):      
+    if ((myArrayHeadings[i+1]=="PE") or (myArrayHeadings[i+1]=="VE")):  
+      plt.plot(beads2XExact, beads2YExact, label="Exact")
+      plt.plot(beads2XClass, beads2YClass, label="Classical")
+      plt.plot(x0, y0, label="Classical 0T")
+
   # Legend
   leg = plt.legend(loc='best')
   # matplotlib.text.Text instances
   for t in leg.get_texts():
       t.set_fontsize('xx-small')    # the legend text fontsize
   plt.suptitle(myArrayHeadings[i+1] + " vs Beta", fontsize=12)
-  plt.savefig("data/figures/" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png")
+  plt.savefig("data/figures/" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf")
   plt.clf()
-  print "\nPlot data/figures/" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png Generated!"
+  print "\nPlot data/figures/" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf Generated!"
 
 # Scaled Plots
 for i in range(0, len(col[0])):
@@ -148,9 +193,9 @@ for i in range(0, len(col[0])):
       for t in leg.get_texts():
         t.set_fontsize('xx-small')    # the legend text fontsize
       plt.suptitle(myArrayHeadings[i+1] + " Scaled vs Beta", fontsize=12)
-      plt.savefig("data/figures/" + myArrayHeadings[i+1] + "ScaledvBeta-" + outputLabel + ".png")
+      plt.savefig("data/figures/" + myArrayHeadings[i+1] + "ScaledvBeta-" + outputLabel + ".pdf")
       plt.clf()
-      print "\nPlot data/figures/" + myArrayHeadings[i+1] + "ScaledvBeta-" + outputLabel + ".png Generated!"
+      print "\nPlot data/figures/" + myArrayHeadings[i+1] + "ScaledvBeta-" + outputLabel + ".pdf Generated!"
 
 # Error Plots
 print "\nGenerating Error Plots..."
@@ -165,9 +210,9 @@ for i in range(0, len(col[0])):
   for t in leg.get_texts():
       t.set_fontsize('xx-small')    # the legend text fontsize
   plt.suptitle("Error in " + myArrayHeadings[i+1] + " vs Beta", fontsize=12)
-  plt.savefig("data/figures/Err" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png")
+  plt.savefig("data/figures/Err" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf")
   plt.clf()
-  print "\nPlot data/figures/Err" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png Generated!"
+  print "\nPlot data/figures/Err" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf Generated!"
 
 # Efficiency Plots
 print "\nGenerating Efficiency Plots..."
@@ -180,9 +225,9 @@ for i in range(0, len(col[0])):
     plt.bar(effX[j], (1.0/(asarray(col[j][0][0])*asarray(col[j][i][3])*asarray(col[j][i][3]))).tolist(), label=inputFileLabel[j])
   plt.xticks(arange(len(effLabels[0]))+1, effLabels[0], rotation='vertical', fontsize='xx-small')
   plt.suptitle("Efficiency of " + myArrayHeadings[i+1] + " for Beta =" + betaLabel, fontsize=12)
-  plt.savefig("data/figures/EffBar" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png")
+  plt.savefig("data/figures/EffBar" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf")
   plt.clf()
-  print "\nPlot data/figures/EffBar" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png Generated!"
+  print "\nPlot data/figures/EffBar" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf Generated!"
 
 # Efficiency Plots
 print "\nGenerating Efficiency Plots..."
@@ -197,8 +242,8 @@ for i in range(0, len(col[0])):
   for t in leg.get_texts():
       t.set_fontsize('xx-small')    # the legend text fontsize
   plt.suptitle("Efficiency of " + myArrayHeadings[i+1] + " vs Beta", fontsize=12)
-  plt.savefig("data/figures/Eff" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png")
+  plt.savefig("data/figures/Eff" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf")
   plt.clf()
-  print "\nPlot data/figures/Eff" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".png Generated!"
+  print "\nPlot data/figures/Eff" + myArrayHeadings[i+1] + "vBeta-" + outputLabel + ".pdf Generated!"
 
 print "\nDone.\n"

@@ -101,8 +101,8 @@ leg = plt.legend(loc='best')
 for t in leg.get_texts():
     t.set_fontsize('xx-small') 
 plt.suptitle(varLabel, fontsize=12)
-plt.savefig("data/figures/" + varLabel + "-" + outputLabel + ".png")
+plt.savefig("data/figures/" + varLabel + "-" + outputLabel + ".pdf")
 plt.clf()
-print "\nPlot data/figures/" + varLabel + "-" + outputLabel + ".png Generated!"
+print "\nPlot data/figures/" + varLabel + "-" + outputLabel + ".pdf Generated!"
 
 print "\nDone.\n"

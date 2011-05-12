@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -larmadillo -I /usr/include/boost -c -O1 -msse2 -pg
-LDFLAGS = -larmadillo -I /usr/include/boost -O1 -msse2 -pg
+CFLAGS = -larmadillo -I /usr/include/boost -c -O1 -msse2
+LDFLAGS = -larmadillo -I /usr/include/boost -O1 -msse2
 SOURCES = shab-pimd.cpp
 SOURCES += PathsClass.cpp
 SOURCES += Observables.cpp
@@ -15,7 +15,7 @@ SOURCES += rng/mersenne.cpp
 SOURCES += rng/userintf.cpp
 SOURCES += rng/stoc1.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
-EXECUTABLE = shab-pimd
+EXECUTABLE = shab-pimd_test
 
 all: $(SOURCES) $(EXECUTABLE)
 		
